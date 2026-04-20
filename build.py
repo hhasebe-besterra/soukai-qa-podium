@@ -159,6 +159,11 @@ header button.primary:hover{background:#b91c1c}
 .tab-btn{padding:9px 10px;background:transparent;color:#94a3b8;border:none;border-bottom:3px solid transparent;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 .tab-btn.active{color:#fff;border-bottom-color:#3b82f6}
 .tab-btn:hover{color:#e2e8f0}
+.tpl-row{display:none;padding:5px 8px;background:#0f172a;border-bottom:1px solid #334155;flex-shrink:0}
+.tpl-row.on{display:flex}
+.tpl-btn{width:100%;padding:7px 10px;background:#3b0764;color:#fbbf24;border:2px solid #7c3aed;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left;font-family:inherit}
+.tpl-btn:hover{background:#581c87}
+.tpl-btn.active{background:#7c3aed;color:#fff;border-color:#fbbf24}
 .list-area{flex:1;overflow-y:auto;padding:6px 8px 40px}
 .list-area::-webkit-scrollbar{width:8px}
 .list-area::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
@@ -297,6 +302,9 @@ body.podium .office-slide p{font-size:28px}
       </div>
     </div>
     <div class="tab-row" id="tabRow"></div>
+    <div class="tpl-row" id="tplRow">
+      <button class="tpl-btn" id="tplBtn" data-tab="TPL">📌 定型文リファレンス（T1〜TG 計8件）</button>
+    </div>
     <div class="list-area" id="listArea"></div>
     <div class="quick-area">
       <button class="quick-btn" id="btnOffice">🏢 事務局に相談（画面に表示）</button>
@@ -368,16 +376,18 @@ function findByKey(k){
 }
 function buildTabs(){
   const tr = document.getElementById("tabRow");
+  const tplRow = document.getElementById("tplRow");
   let html = '';
   if(state.mode === "accident"){
     html += '<button class="tab-btn active" data-tab="ALL">全て('+QA.length+')</button>';
-    html += '<button class="tab-btn" data-tab="TPL" style="color:#fbbf24">📌定型文('+TEMPLATES.length+')</button>';
     for(const [k,label,n] of CATS){
       if(n === 0) continue;
       const short = label.length>14 ? label.substring(0,12)+"…" : label;
       html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+' ('+n+'件)">'+short+'('+n+')</button>';
     }
+    tplRow.classList.add("on");
   } else {
+    tplRow.classList.remove("on");
     html += '<button class="tab-btn active" data-tab="ALL">全て('+GENERAL.length+')</button>';
     for(const [k,label,n] of GENERAL_CATS){
       if(n === 0) continue;
@@ -390,10 +400,21 @@ function buildTabs(){
     btn.addEventListener("click",()=>{
       state.tab = btn.dataset.tab;
       tr.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b===btn));
+      document.getElementById("tplBtn").classList.remove("active");
       state.selected = -1;
       render();
     });
   });
+  // 定型文専用ボタン
+  const tplBtn = document.getElementById("tplBtn");
+  tplBtn.classList.toggle("active", state.tab === "TPL");
+  tplBtn.onclick = () => {
+    state.tab = "TPL";
+    tr.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    tplBtn.classList.add("active");
+    state.selected = -1;
+    render();
+  };
   document.getElementById("modeAccidentCount").textContent = "("+(QA.length + TEMPLATES.length)+")";
   document.getElementById("modeGeneralCount").textContent = "("+GENERAL.length+")";
 }
