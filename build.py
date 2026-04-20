@@ -31,6 +31,21 @@ CAT_LABELS = {
     "F": "F. 信託株主からの質問",
 }
 
+# A分類 (Sheet C列) をタブ化する際の順序とキー (2026-04-20 会議指示)
+A_CLASS_ORDER = [
+    ("個別回答",                        "IND",  "📝 個別回答"),
+    ("定型文①調査中につき回答不能",   "TPL1", "① 調査中"),
+    ("定型文②事業への影響不透明",     "TPL2", "② 事業影響"),
+    ("定型文③業績への影響不透明",     "TPL3", "③ 業績影響"),
+    ("定型文④役員の責任",              "TPL4", "④ 役員責任"),
+    ("定型文⑤再発防止",                "TPL5", "⑤ 再発防止"),
+    ("定型文⑥法的な責任分担",          "TPL6", "⑥ 法的責任"),
+    ("定型文⑦プライバシー保護",        "TPL7", "⑦ プライバシー"),
+    ("社外役員回答",                   "OUT",  "🎓 社外役員"),
+    ("個別的",                          "IND2", "個別的"),
+]
+A_CLASS_LOOKUP = {name: (key, short) for name, key, short in A_CLASS_ORDER}
+
 # 2026-04-20 版 定型文 × 8
 TEMPLATES = [
     ("T1", "定型文① 調査中につき回答不能",
@@ -71,7 +86,8 @@ def fetch_sheet_csv() -> str:
 
 
 def parse_qa(csv_text: str):
-    data = {k: {"label": v, "items": []} for k, v in CAT_LABELS.items()}
+    """A分類(C列)をカテゴリキーとして分類する。"""
+    data = {key: {"label": f"{short}", "items": []} for _, key, short in A_CLASS_ORDER}
     sources = {}
     reader = csv.reader(io.StringIO(csv_text))
     for row in reader:
@@ -85,21 +101,22 @@ def parse_qa(csv_text: str):
         q = row[3].strip()
         a = row[4].strip()
         src = row[5].strip()
-        q_cls = row[6].strip()
         if not q or not a:
             continue
 
         tag = classify_tag(a_cls)
+        key_short = A_CLASS_LOOKUP.get(a_cls)
+        if not key_short:
+            # 未知のA分類は 個別回答 へフォールバック
+            key_short = ("IND", "📝 個別回答")
+        cat_key = key_short[0]
 
         if no >= 201:
-            cat = "F"
             display_id = f"F{no - 200}"
         else:
-            first = q_cls[:1].upper()
-            cat = first if first in "ABCDE" else "A"
             display_id = str(no)
 
-        data[cat]["items"].append((display_id, q, a, tag))
+        data[cat_key]["items"].append((display_id, q, a, tag))
         if src:
             sources[display_id] = src
     return data, sources
@@ -213,8 +230,11 @@ body.podium .answer-box{padding:48px 64px}
 body.podium .right-body{padding:40px}
 body.podium .actions-row button.exit-podium{display:inline-block}
 .actions-row button.exit-podium{display:none;background:#dc2626}
-.kbd-hint{position:fixed;bottom:10px;left:14px;background:rgba(15,23,42,.85);color:#cbd5e1;padding:8px 12px;border-radius:6px;font-size:11px;z-index:200;line-height:1.7;pointer-events:none}
-body.podium .kbd-hint{display:none}
+.kbd-toggle{position:fixed;bottom:10px;left:10px;width:36px;height:36px;background:#1e293b;color:#cbd5e1;border:2px solid #475569;border-radius:50%;font-size:16px;cursor:pointer;z-index:201;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.kbd-toggle:hover{background:#334155;color:#fff}
+body.podium .kbd-toggle{display:none}
+.kbd-hint{position:fixed;bottom:54px;left:14px;background:rgba(15,23,42,.92);color:#cbd5e1;padding:10px 14px;border-radius:6px;font-size:11px;z-index:200;line-height:1.8;pointer-events:none;border:1px solid #475569}
+body.podium .kbd-hint{display:none !important}
 .sync-badge{background:#22c55e;color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;margin-left:8px;font-weight:700}
 .closing-dock{position:fixed;right:14px;bottom:14px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03;padding:16px 22px;border-radius:12px;font-size:15px;font-weight:700;line-height:1.75;z-index:250;box-shadow:0 6px 20px rgba(0,0,0,.45);border:3px solid #fef3c7;max-width:400px;letter-spacing:.02em;cursor:move;user-select:none}
 .closing-dock .cd-label{font-size:10px;letter-spacing:.15em;color:#78350f;font-weight:900;margin-bottom:6px}
@@ -269,7 +289,6 @@ body.podium .office-slide p{font-size:28px}
     <div class="search-area">
       <div class="search-row">
         <input type="text" id="searchInput" placeholder="🔍 キーワード検索" autocomplete="off">
-        <input type="text" id="jumpInput" placeholder="Q#" autocomplete="off" title="Q番号を入力してEnter">
       </div>
       <div class="scope-row">
         <button class="scope-btn active" data-scope="both">質問＋回答</button>
@@ -313,8 +332,11 @@ body.podium .office-slide p{font-size:28px}
     </div>
   </div>
 </div>
-<div class="kbd-hint">
-  <b>ショートカット</b>：<span class="kbd">/</span> 検索  <span class="kbd">Q</span> Q#入力  <span class="kbd">↑↓</span> 候補  <span class="kbd">Space/Enter</span> ✓  <span class="kbd">F</span> 演台ON/OFF  <span class="kbd">Esc</span> 演台終了
+<button class="kbd-toggle" id="kbdToggle" title="ショートカット一覧">⌨</button>
+<div class="kbd-hint" id="kbdHint" style="display:none">
+  <b>ショートカット</b><br>
+  <span class="kbd">/</span> 検索  <span class="kbd">↑↓</span> 候補  <span class="kbd">Space/Enter</span> ✓<br>
+  <span class="kbd">F</span> 演台ON/OFF  <span class="kbd">Esc</span> 閉じる
 </div>
 <div class="counter-chip" id="counterChip">選択中 <span id="counterNum">0</span> / 4</div>
 <div class="closing-dock" id="closingDock" title="ドラッグで移動">
@@ -326,17 +348,22 @@ body.podium .office-slide p{font-size:28px}
 const QA = __QA_JSON__;
 const TEMPLATES = __TEMPLATES_JSON__;
 const CATS = __CATS_JSON__;
+const GENERAL = __GENERAL_JSON__;
+const GENERAL_CATS = __GENERAL_CATS_JSON__;
 const TAG_MAP = {"answered":["green","個別回答"],"template":["orange","定型文"],"declined":["red","回答留保"],"updated":["blue","★最新情報"]};
 const MAX_CHECKED = 4;
 const SPECIAL = {
   OFFICE: {id:"OFFICE", cat:"SP", catLabel:"特別スライド", q:"事務局に相談します", a:"", tag:"declined", src:"", special:"office"},
 };
 let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28, checked:[], mode:"accident", aiQ:"", aiA:"" };
-function keyOf(it){ return (it.cat||"") + ":" + it.id; }
+function keyOf(it){ return (it.cat||"") + ":" + it.id + (it.mode==="general"?":G":""); }
 function findByKey(k){
   if(k==="SP:OFFICE") return SPECIAL.OFFICE;
   if(k==="SP:AI") return {id:"AI", cat:"SP", catLabel:"AI即席回答", q:state.aiQ || "（質問を入力してください）", a:state.aiA || "", tag:"updated", src:"AI生成（当日）", special:"ai"};
-  const allPool = QA.concat(TEMPLATES.map(t=>({id:t.id,cat:"TPL",catLabel:"定型文",q:t.title,a:t.a,tag:"template",src:"2026-04-20版 定型文"})));
+  const allPool = QA.concat(
+    TEMPLATES.map(t=>({id:t.id,cat:"TPL",catLabel:"定型文",q:t.title,a:t.a,tag:"template",src:"2026-04-20版 定型文"})),
+    GENERAL.map(g=>Object.assign({}, g, {mode:"general"}))
+  );
   return allPool.find(it => keyOf(it)===k) || null;
 }
 function buildTabs(){
@@ -346,11 +373,17 @@ function buildTabs(){
     html += '<button class="tab-btn active" data-tab="ALL">全て('+QA.length+')</button>';
     html += '<button class="tab-btn" data-tab="TPL" style="color:#fbbf24">📌定型文('+TEMPLATES.length+')</button>';
     for(const [k,label,n] of CATS){
+      if(n === 0) continue;
       const short = label.length>14 ? label.substring(0,12)+"…" : label;
-      html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+'">'+short+'('+n+')</button>';
+      html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+' ('+n+'件)">'+short+'('+n+')</button>';
     }
   } else {
-    html += '<button class="tab-btn active" data-tab="ALL">一般Q&A</button>';
+    html += '<button class="tab-btn active" data-tab="ALL">全て('+GENERAL.length+')</button>';
+    for(const [k,label,n] of GENERAL_CATS){
+      if(n === 0) continue;
+      const short = label.length>12 ? label.substring(0,11)+"…" : label;
+      html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+' ('+n+'件)">'+short+'('+n+')</button>';
+    }
   }
   tr.innerHTML = html;
   tr.querySelectorAll(".tab-btn").forEach(btn=>{
@@ -361,9 +394,8 @@ function buildTabs(){
       render();
     });
   });
-  const totalAcc = QA.length + TEMPLATES.length;
-  document.getElementById("modeAccidentCount").textContent = "("+totalAcc+")";
-  document.getElementById("modeGeneralCount").textContent = "(準備中)";
+  document.getElementById("modeAccidentCount").textContent = "("+(QA.length + TEMPLATES.length)+")";
+  document.getElementById("modeGeneralCount").textContent = "("+GENERAL.length+")";
 }
 function buildModes(){
   document.querySelectorAll(".mode-btn").forEach(btn=>{
@@ -394,7 +426,11 @@ function matches(item){
   return (item.q+" "+item.a).toLowerCase().includes(q);
 }
 function currentPool(){
-  if(state.mode === "general") return [];
+  if(state.mode === "general"){
+    const pool = GENERAL.map(g=>Object.assign({}, g, {mode:"general"}));
+    if(state.tab==="ALL") return pool;
+    return pool.filter(x=>x.cat===state.tab);
+  }
   if(state.tab==="TPL") return TEMPLATES.map(t=>({id:t.id,cat:"TPL",catLabel:"定型文",q:t.title,a:t.a,tag:"template",src:"2026-04-20版 定型文"}));
   if(state.tab==="ALL") return QA;
   return QA.filter(x=>x.cat===state.tab);
@@ -405,11 +441,7 @@ function render(){
   state.filtered = list;
   const area = document.getElementById("listArea");
   if(list.length===0){
-    if(state.mode==="general"){
-      area.innerHTML = '<div class="list-empty">一般質問データは今後追加予定<br>現在は事故Q&Aをご利用ください<br><br>🏢 事務局に相談 / 🤖 AI回答ペースト は使用可能</div>';
-    } else {
-      area.innerHTML = '<div class="list-empty">該当なし</div>';
-    }
+    area.innerHTML = '<div class="list-empty">該当なし</div>';
     renderRight(); return;
   }
   let html = "";
@@ -610,7 +642,6 @@ document.addEventListener("keydown",(e)=>{
   }
   if(!isInput){
     if(e.key==="/"){ e.preventDefault(); document.getElementById("searchInput").focus(); return; }
-    if(e.key==="q" || e.key==="Q"){ e.preventDefault(); document.getElementById("jumpInput").focus(); return; }
     if(e.key==="f" || e.key==="F"){ e.preventDefault(); togglePodium(); return; }
     if(e.key==="+" || e.key==="="){ e.preventDefault(); adjSize(2); return; }
     if(e.key==="-" || e.key==="_"){ e.preventDefault(); adjSize(-2); return; }
@@ -630,37 +661,22 @@ document.addEventListener("keydown",(e)=>{
     if(state.selected>=0 && state.filtered[state.selected]){
       toggleCheck(keyOf(state.filtered[state.selected]));
     }
-  } else if(e.key==="Enter"){
-    if(e.target.id==="jumpInput"){
-      const v = e.target.value.trim();
-      if(v){
-        let allPool = QA.concat(TEMPLATES.map(t=>({id:t.id,cat:"TPL",catLabel:"定型文",q:t.title,a:t.a,tag:"template",src:"2026-04-20版 定型文"})));
-        const target = allPool.find(it => String(it.id).toUpperCase()===v.toUpperCase());
-        if(target){
-          state.tab = target.cat;
-          state.query = "";
-          document.getElementById("searchInput").value = "";
-          document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===target.cat));
-          render();
-          const idx = state.filtered.findIndex(x=>x.id===target.id && x.cat===target.cat);
-          if(idx>=0){
-            state.selected = idx;
-            toggleCheck(keyOf(target));
-          }
-        } else {
-          e.target.style.background="#fee2e2";
-          setTimeout(()=>{e.target.style.background="";},600);
-        }
-        e.target.value = "";
-        e.target.blur();
-      }
-    } else if(!isInput){
-      if(state.selected>=0 && state.filtered[state.selected]){
-        toggleCheck(keyOf(state.filtered[state.selected]));
-      }
+  } else if(e.key==="Enter" && !isInput){
+    if(state.selected>=0 && state.filtered[state.selected]){
+      toggleCheck(keyOf(state.filtered[state.selected]));
     }
   }
 });
+
+// Kbd-hint toggle
+(function initKbdToggle(){
+  const btn = document.getElementById("kbdToggle");
+  const hint = document.getElementById("kbdHint");
+  if(!btn || !hint) return;
+  btn.addEventListener("click",()=>{
+    hint.style.display = (hint.style.display === "none") ? "block" : "none";
+  });
+})();
 
 // Closing dock のドラッグ
 (function initDrag(){
@@ -704,11 +720,26 @@ render();
 """
 
 
+def load_general_qa():
+    """general_qa.json を読み込む（存在しなければ空）"""
+    p = os.path.join(ROOT, "general_qa.json")
+    if not os.path.exists(p):
+        return {"items": [], "cats": []}
+    with open(p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def build_inner_html(data, sources) -> tuple[str, int]:
     total = sum(len(v["items"]) for v in data.values())
     qa_items = []
-    for cat_key, val in data.items():
-        for display_id, q, a, tag in val["items"]:
+    # A_CLASS_ORDER の順序を保ちたい → sort by major then by id numeric if possible
+    for _, cat_key, short in A_CLASS_ORDER:
+        val = data.get(cat_key)
+        if not val:
+            continue
+        # sort by numeric id (F#は末尾に)
+        sorted_items = sorted(val["items"], key=lambda t: (t[0].startswith("F"), int(t[0][1:]) if t[0].startswith("F") else int(t[0])))
+        for display_id, q, a, tag in sorted_items:
             qa_items.append({
                 "id": display_id,
                 "cat": cat_key,
@@ -721,14 +752,21 @@ def build_inner_html(data, sources) -> tuple[str, int]:
 
     template_items = [{"id": t[0], "title": t[1], "a": t[2]} for t in TEMPLATES]
     cats = [(k, v["label"], len(v["items"])) for k, v in data.items() if v["items"]]
+
+    gen = load_general_qa()
+    general_items = gen.get("items", [])
+    general_cats = gen.get("cats", [])
     build_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M JST")
 
     html = (HTML_WRAPPER_TEMPLATE
             .replace("__QA_JSON__",        json.dumps(qa_items, ensure_ascii=False))
             .replace("__TEMPLATES_JSON__", json.dumps(template_items, ensure_ascii=False))
             .replace("__CATS_JSON__",      json.dumps(cats, ensure_ascii=False))
+            .replace("__GENERAL_JSON__",   json.dumps(general_items, ensure_ascii=False))
+            .replace("__GENERAL_CATS_JSON__", json.dumps(general_cats, ensure_ascii=False))
             .replace("__BUILD_TIME__",     build_time)
             .replace("__TOTAL__",          str(total))
+            .replace("__GEN_TOTAL__",      str(len(general_items)))
             .replace("__TPL__",            str(len(TEMPLATES))))
     return html, total
 
