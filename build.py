@@ -145,12 +145,21 @@ header button.primary:hover{background:#b91c1c}
 .list-area{flex:1;overflow-y:auto;padding:6px 8px 40px}
 .list-area::-webkit-scrollbar{width:8px}
 .list-area::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
-.list-item{padding:9px 12px;margin-bottom:3px;border-radius:6px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;border:2px solid transparent;background:#0f172a;transition:background .1s}
+.list-item{padding:9px 12px;margin-bottom:3px;border-radius:6px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;border:2px solid transparent;background:#0f172a;transition:background .1s;flex-wrap:wrap;position:relative}
 .list-item:hover{background:#27344a}
 .list-item.selected{background:#1e40af;border-color:#60a5fa}
 .list-item.selected .li-num{background:#dc2626}
+.list-item.checked{background:#0f3d26;border-color:#22c55e}
+.list-item.checked.selected{background:#1e40af;border-color:#60a5fa}
+.li-chk{flex-shrink:0;width:18px;height:18px;border:2px solid #64748b;border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;background:#1e293b;font-size:12px;font-weight:900;color:transparent}
+.list-item.checked .li-chk{background:#22c55e;border-color:#22c55e;color:#0f172a}
+.list-item.checked .li-chk::after{content:"✓"}
+.li-order{position:absolute;top:6px;right:8px;min-width:18px;height:18px;padding:0 5px;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center}
+.list-item.checked .li-order{display:flex}
 .li-num{flex-shrink:0;min-width:46px;height:22px;padding:0 6px;background:#334155;color:#fff;border-radius:4px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.li-q{flex:1;font-size:12.5px;line-height:1.5;color:#e2e8f0;font-weight:500;word-break:break-word}
+.li-q{flex:1;font-size:12.5px;line-height:1.5;color:#e2e8f0;font-weight:500;word-break:break-word;min-width:0}
+.li-a-preview{flex-basis:100%;margin-left:34px;margin-top:4px;padding-top:4px;border-top:1px dashed #334155;font-size:10.5px;line-height:1.45;color:#94a3b8;max-height:2.9em;overflow:hidden;position:relative}
+.list-item:hover .li-a-preview{max-height:none;color:#cbd5e1}
 .li-tag{flex-shrink:0;width:8px;height:8px;border-radius:50%;margin-top:6px}
 .li-tag.green{background:#22c55e}
 .li-tag.orange{background:#f59e0b}
@@ -170,7 +179,16 @@ header button.primary:hover{background:#b91c1c}
 .right-body{flex:1;overflow-y:auto;padding:28px 40px 60px;background:#f8fafc}
 .right-body::-webkit-scrollbar{width:12px}
 .right-body::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:6px}
-.answer-box{background:#fff;border:2px solid #cbd5e1;border-radius:12px;padding:36px 44px;box-shadow:0 4px 16px rgba(0,0,0,.08);max-width:1200px;margin:0 auto}
+.answer-box{background:#fff;border:2px solid #cbd5e1;border-radius:12px;padding:36px 44px;box-shadow:0 4px 16px rgba(0,0,0,.08);max-width:1200px;margin:0 auto 20px}
+.answer-box.idx-1{border-color:#3b82f6;border-width:3px}
+.answer-box.idx-2{border-color:#8b5cf6;border-width:3px}
+.answer-box.idx-3{border-color:#f59e0b;border-width:3px}
+.answer-box.idx-4{border-color:#ef4444;border-width:3px}
+.answer-idx{display:inline-block;background:#dc2626;color:#fff;border-radius:50%;width:30px;height:30px;line-height:30px;text-align:center;font-size:16px;font-weight:900;margin-right:10px;vertical-align:middle}
+.remove-card{float:right;background:transparent;border:2px solid #cbd5e1;color:#64748b;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.remove-card:hover{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.card-q{font-size:16px;font-weight:700;color:#0f172a;line-height:1.6;margin-bottom:10px}
+body.podium .card-q{font-size:22px}
 .answer-label{font-size:13px;font-weight:700;color:#64748b;letter-spacing:.2em;margin-bottom:14px}
 .answer-text{font-size:var(--answer-size,28px);line-height:2.0;color:#0f172a;white-space:pre-wrap;font-weight:500;letter-spacing:.02em}
 .answer-src{margin-top:24px;padding-top:14px;border-top:1px dashed #cbd5e1;font-size:13px;color:#64748b;white-space:pre-wrap;line-height:1.7}
@@ -195,8 +213,41 @@ body.podium .answer-box{padding:48px 64px}
 body.podium .right-body{padding:40px}
 body.podium .actions-row button.exit-podium{display:inline-block}
 .actions-row button.exit-podium{display:none;background:#dc2626}
-.kbd-hint{position:fixed;bottom:10px;right:14px;background:rgba(15,23,42,.85);color:#cbd5e1;padding:8px 12px;border-radius:6px;font-size:11px;z-index:200;line-height:1.7;pointer-events:none}
+.kbd-hint{position:fixed;bottom:10px;left:14px;background:rgba(15,23,42,.85);color:#cbd5e1;padding:8px 12px;border-radius:6px;font-size:11px;z-index:200;line-height:1.7;pointer-events:none}
+body.podium .kbd-hint{display:none}
 .sync-badge{background:#22c55e;color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;margin-left:8px;font-weight:700}
+.closing-dock{position:fixed;right:14px;bottom:14px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03;padding:16px 22px;border-radius:12px;font-size:15px;font-weight:700;line-height:1.75;z-index:250;box-shadow:0 6px 20px rgba(0,0,0,.45);border:3px solid #fef3c7;max-width:400px;letter-spacing:.02em;cursor:move;user-select:none}
+.closing-dock .cd-label{font-size:10px;letter-spacing:.15em;color:#78350f;font-weight:900;margin-bottom:6px}
+.closing-dock .cd-line{color:#0f172a;font-size:16px}
+body.podium .closing-dock{font-size:20px;padding:22px 30px;max-width:560px;border-width:4px}
+body.podium .closing-dock .cd-line{font-size:22px;line-height:1.85}
+body.podium .closing-dock .cd-label{font-size:12px}
+.counter-chip{position:fixed;top:14px;right:14px;background:#1e293b;color:#fbbf24;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;z-index:120;border:2px solid #fbbf24;display:none}
+.counter-chip.on{display:block}
+.mode-row{display:flex;background:#0f172a;padding:6px 6px;gap:4px;border-bottom:1px solid #334155;flex-shrink:0}
+.mode-btn{flex:1;padding:10px;background:#1e293b;color:#94a3b8;border:2px solid transparent;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.mode-btn.active{background:#dc2626;color:#fff;border-color:#fbbf24}
+.mode-btn:hover:not(.active){background:#27344a;color:#e2e8f0}
+.mode-btn .mode-badge{display:inline-block;font-size:10px;margin-left:6px;opacity:.7}
+.quick-btn{display:block;width:100%;padding:10px 12px;background:#7c3aed;color:#fff;border:2px solid #a78bfa;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:6px}
+.quick-btn:hover{background:#6d28d9}
+.quick-btn.ai{background:#0891b2;border-color:#22d3ee}
+.quick-btn.ai:hover{background:#0e7490}
+.quick-area{padding:8px 10px;background:#0f172a;border-top:1px solid #334155;flex-shrink:0}
+.ai-paste-box{background:#fff;border:3px dashed #0891b2;border-radius:12px;padding:20px 24px;max-width:1200px;margin:0 auto 20px}
+.ai-paste-box textarea{width:100%;min-height:180px;padding:14px;border:2px solid #cbd5e1;border-radius:8px;font-size:16px;font-family:inherit;line-height:1.7;color:#0f172a;resize:vertical;outline:none}
+.ai-paste-box textarea:focus{border-color:#0891b2}
+.ai-paste-box .ai-q{width:100%;min-height:50px;font-size:14px;font-weight:700;margin-bottom:10px}
+.ai-paste-box label{display:block;font-size:12px;font-weight:700;color:#64748b;letter-spacing:.1em;margin-bottom:6px;margin-top:12px}
+.ai-paste-box .row{display:flex;gap:8px;margin-top:12px;align-items:center}
+.ai-paste-box .row button{background:#0891b2;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.ai-paste-box .row button.secondary{background:#475569}
+body.podium .ai-paste-box{border-style:solid}
+.office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:60px 50px;text-align:center;max-width:1200px;margin:0 auto 20px}
+.office-slide h1{font-size:48px;color:#7c2d12;margin-bottom:24px;font-weight:900;letter-spacing:.05em}
+.office-slide p{font-size:20px;color:#451a03;line-height:1.8;margin-bottom:16px;font-weight:700}
+body.podium .office-slide h1{font-size:72px}
+body.podium .office-slide p{font-size:28px}
 </style>
 </head>
 <body>
@@ -211,6 +262,10 @@ body.podium .actions-row button.exit-podium{display:inline-block}
 </header>
 <div class="main">
   <div class="pane-left">
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="accident">🚨 事故Q&A<span class="mode-badge" id="modeAccidentCount"></span></button>
+      <button class="mode-btn" data-mode="general">💬 一般Q&A<span class="mode-badge" id="modeGeneralCount"></span></button>
+    </div>
     <div class="search-area">
       <div class="search-row">
         <input type="text" id="searchInput" placeholder="🔍 キーワード検索" autocomplete="off">
@@ -224,6 +279,10 @@ body.podium .actions-row button.exit-podium{display:inline-block}
     </div>
     <div class="tab-row" id="tabRow"></div>
     <div class="list-area" id="listArea"></div>
+    <div class="quick-area">
+      <button class="quick-btn" id="btnOffice">🏢 事務局に相談（画面に表示）</button>
+      <button class="quick-btn ai" id="btnAiPaste">🤖 AI回答をペースト（想定外質問用）</button>
+    </div>
   </div>
   <div class="pane-right">
     <div class="right-head" id="rightHead" style="display:none">
@@ -246,30 +305,52 @@ body.podium .actions-row button.exit-podium{display:inline-block}
     </div>
     <div class="right-body" id="rightBody">
       <div class="empty-hint">
-        <h2>👈 左から質問を選択してください</h2>
+        <h2>👈 左の □ にチェックを入れてください（最大4件）</h2>
         <p>キーワード検索 / Q番号直打ち / 定型文タブ から素早く呼び出せます</p>
-        <p style="margin-top:24px"><span class="kbd">↑</span> <span class="kbd">↓</span> 候補移動　<span class="kbd">Enter</span> 表示　<span class="kbd">F</span> 演台モード　<span class="kbd">Esc</span> 戻る</p>
+        <p style="margin-top:24px"><span class="kbd">↑</span> <span class="kbd">↓</span> 候補移動　<span class="kbd">Space/Enter</span> ✓トグル　<span class="kbd">F</span> 演台モード　<span class="kbd">Esc</span> 戻る</p>
         <p style="margin-top:6px">データは Google Sheets から 5 分おきに自動同期（最終: __BUILD_TIME__）</p>
       </div>
     </div>
   </div>
 </div>
 <div class="kbd-hint">
-  <b>ショートカット</b>：<span class="kbd">/</span> 検索  <span class="kbd">Q</span> Q#入力  <span class="kbd">↑↓</span> 候補  <span class="kbd">Enter</span> 表示  <span class="kbd">F</span> 演台ON/OFF  <span class="kbd">Esc</span> 演台終了
+  <b>ショートカット</b>：<span class="kbd">/</span> 検索  <span class="kbd">Q</span> Q#入力  <span class="kbd">↑↓</span> 候補  <span class="kbd">Space/Enter</span> ✓  <span class="kbd">F</span> 演台ON/OFF  <span class="kbd">Esc</span> 演台終了
+</div>
+<div class="counter-chip" id="counterChip">選択中 <span id="counterNum">0</span> / 4</div>
+<div class="closing-dock" id="closingDock" title="ドラッグで移動">
+  <div class="cd-label">📢 回答の締めくくり（読み上げ）</div>
+  <div class="cd-line">以上、ご回答申し上げました。</div>
+  <div class="cd-line">他にご質問はございませんでしょうか？</div>
 </div>
 <script>
 const QA = __QA_JSON__;
 const TEMPLATES = __TEMPLATES_JSON__;
 const CATS = __CATS_JSON__;
 const TAG_MAP = {"answered":["green","個別回答"],"template":["orange","定型文"],"declined":["red","回答留保"],"updated":["blue","★最新情報"]};
-let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28 };
+const MAX_CHECKED = 4;
+const SPECIAL = {
+  OFFICE: {id:"OFFICE", cat:"SP", catLabel:"特別スライド", q:"事務局に相談します", a:"", tag:"declined", src:"", special:"office"},
+};
+let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28, checked:[], mode:"accident", aiQ:"", aiA:"" };
+function keyOf(it){ return (it.cat||"") + ":" + it.id; }
+function findByKey(k){
+  if(k==="SP:OFFICE") return SPECIAL.OFFICE;
+  if(k==="SP:AI") return {id:"AI", cat:"SP", catLabel:"AI即席回答", q:state.aiQ || "（質問を入力してください）", a:state.aiA || "", tag:"updated", src:"AI生成（当日）", special:"ai"};
+  const allPool = QA.concat(TEMPLATES.map(t=>({id:t.id,cat:"TPL",catLabel:"定型文",q:t.title,a:t.a,tag:"template",src:"2026-04-20版 定型文"})));
+  return allPool.find(it => keyOf(it)===k) || null;
+}
 function buildTabs(){
   const tr = document.getElementById("tabRow");
-  let html = '<button class="tab-btn active" data-tab="ALL">全て('+QA.length+')</button>';
-  html += '<button class="tab-btn" data-tab="TPL" style="color:#fbbf24">📌定型文('+TEMPLATES.length+')</button>';
-  for(const [k,label,n] of CATS){
-    const short = label.length>14 ? label.substring(0,12)+"…" : label;
-    html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+'">'+short+'('+n+')</button>';
+  let html = '';
+  if(state.mode === "accident"){
+    html += '<button class="tab-btn active" data-tab="ALL">全て('+QA.length+')</button>';
+    html += '<button class="tab-btn" data-tab="TPL" style="color:#fbbf24">📌定型文('+TEMPLATES.length+')</button>';
+    for(const [k,label,n] of CATS){
+      const short = label.length>14 ? label.substring(0,12)+"…" : label;
+      html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+'">'+short+'('+n+')</button>';
+    }
+  } else {
+    html += '<button class="tab-btn active" data-tab="ALL">一般Q&A</button>';
   }
   tr.innerHTML = html;
   tr.querySelectorAll(".tab-btn").forEach(btn=>{
@@ -277,6 +358,21 @@ function buildTabs(){
       state.tab = btn.dataset.tab;
       tr.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b===btn));
       state.selected = -1;
+      render();
+    });
+  });
+  const totalAcc = QA.length + TEMPLATES.length;
+  document.getElementById("modeAccidentCount").textContent = "("+totalAcc+")";
+  document.getElementById("modeGeneralCount").textContent = "(準備中)";
+}
+function buildModes(){
+  document.querySelectorAll(".mode-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      state.mode = btn.dataset.mode;
+      state.tab = "ALL";
+      state.selected = -1;
+      document.querySelectorAll(".mode-btn").forEach(b=>b.classList.toggle("active", b===btn));
+      buildTabs();
       render();
     });
   });
@@ -298,6 +394,7 @@ function matches(item){
   return (item.q+" "+item.a).toLowerCase().includes(q);
 }
 function currentPool(){
+  if(state.mode === "general") return [];
   if(state.tab==="TPL") return TEMPLATES.map(t=>({id:t.id,cat:"TPL",catLabel:"定型文",q:t.title,a:t.a,tag:"template",src:"2026-04-20版 定型文"}));
   if(state.tab==="ALL") return QA;
   return QA.filter(x=>x.cat===state.tab);
@@ -307,60 +404,195 @@ function render(){
   const list = pool.filter(matches);
   state.filtered = list;
   const area = document.getElementById("listArea");
-  if(list.length===0){ area.innerHTML = '<div class="list-empty">該当なし</div>'; return; }
+  if(list.length===0){
+    if(state.mode==="general"){
+      area.innerHTML = '<div class="list-empty">一般質問データは今後追加予定<br>現在は事故Q&Aをご利用ください<br><br>🏢 事務局に相談 / 🤖 AI回答ペースト は使用可能</div>';
+    } else {
+      area.innerHTML = '<div class="list-empty">該当なし</div>';
+    }
+    renderRight(); return;
+  }
   let html = "";
   list.forEach((it,idx)=>{
     const tagColor = TAG_MAP[it.tag] ? TAG_MAP[it.tag][0] : "orange";
     const sel = idx===state.selected ? "selected" : "";
+    const checkIdx = state.checked.indexOf(keyOf(it));
+    const chk = checkIdx >= 0 ? "checked" : "";
+    const order = checkIdx >= 0 ? (checkIdx+1) : "";
     const prefix = state.tab==="TPL" ? "定" : "Q";
-    html += '<div class="list-item '+sel+'" data-idx="'+idx+'">'+
+    const previewTxt = (it.a||"").replace(/\s+/g," ").slice(0,140);
+    html += '<div class="list-item '+sel+' '+chk+'" data-idx="'+idx+'" data-key="'+keyOf(it)+'" title="'+ escapeAttr(it.a||"") +'">'+
+            '<div class="li-chk" data-chk="1"></div>'+
             '<div class="li-num">'+ prefix + it.id +'</div>'+
             '<div class="li-q">'+ escapeHtml(it.q) +'</div>'+
             '<div class="li-tag '+tagColor+'"></div>'+
+            '<div class="li-order">'+ order +'</div>'+
+            '<div class="li-a-preview">'+ escapeHtml(previewTxt) +'</div>'+
             '</div>';
   });
   area.innerHTML = html;
   area.querySelectorAll(".list-item").forEach(el=>{
-    el.addEventListener("click",()=>{ state.selected = parseInt(el.dataset.idx,10); render(); showSelected(); });
-    el.addEventListener("dblclick",()=>{ state.selected = parseInt(el.dataset.idx,10); showSelected(); enterPodium(); });
+    el.addEventListener("click",(ev)=>{
+      state.selected = parseInt(el.dataset.idx,10);
+      toggleCheck(el.dataset.key);
+    });
+    el.addEventListener("dblclick",()=>{
+      const k = el.dataset.key;
+      state.checked = [k];
+      state.selected = parseInt(el.dataset.idx,10);
+      render(); renderRight(); enterPodium();
+    });
   });
   if(state.selected>=0 && state.selected<list.length){
     const sel = area.querySelector(".list-item.selected");
     if(sel) sel.scrollIntoView({block:"nearest"});
   }
+  renderRight();
+}
+function escapeAttr(s){ return s.replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function toggleCheck(k){
+  const i = state.checked.indexOf(k);
+  if(i>=0){
+    state.checked.splice(i,1);
+  } else {
+    if(state.checked.length >= MAX_CHECKED){
+      toastLimit();
+      render();
+      return;
+    }
+    state.checked.push(k);
+  }
+  render();
+}
+let _toastTimer=null;
+function toastLimit(){
+  const chip = document.getElementById("counterChip");
+  chip.style.background = "#dc2626";
+  chip.style.color = "#fff";
+  setTimeout(()=>{ chip.style.background=""; chip.style.color=""; }, 700);
 }
 function escapeHtml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function showSelected(){
-  const it = state.filtered[state.selected];
-  if(!it){
-    document.getElementById("rightHead").style.display = "none";
-    document.getElementById("rightBody").innerHTML = '<div class="empty-hint"><h2>👈 左から質問を選択してください</h2></div>';
+function renderRight(){
+  const head = document.getElementById("rightHead");
+  const body = document.getElementById("rightBody");
+  const chip = document.getElementById("counterChip");
+  document.getElementById("counterNum").textContent = state.checked.length;
+  chip.classList.toggle("on", state.checked.length>0);
+  const items = state.checked.map(findByKey).filter(Boolean);
+  if(items.length === 0){
+    head.style.display = "none";
+    body.innerHTML = '<div class="empty-hint"><h2>👈 左の □ にチェックを入れてください（最大4件）</h2><p>クリックで✓／もう一度クリックで解除　・　ダブルクリックでその1件だけ選んで演台モード</p></div>';
     return;
   }
-  document.getElementById("rightHead").style.display = "flex";
-  document.getElementById("rhNo").textContent = (state.tab==="TPL"?"":"Q") + it.id;
-  const tagInfo = TAG_MAP[it.tag] || ["orange","定型文"];
-  const tagEl = document.getElementById("rhTag");
-  tagEl.className = "qtag " + tagInfo[0];
-  tagEl.textContent = tagInfo[1];
-  document.getElementById("rhCat").textContent = it.catLabel;
-  document.getElementById("rhTitle").textContent = it.q;
-  let bodyHtml = '<div class="answer-box"><div class="answer-label">── 回 答 ──</div>'+
-                 '<div class="answer-text">'+ escapeHtml(it.a) +'</div>';
-  if(it.src) bodyHtml += '<div class="answer-src">📎 '+ escapeHtml(it.src) +'</div>';
-  bodyHtml += '</div>';
-  document.getElementById("rightBody").innerHTML = bodyHtml;
+  head.style.display = "flex";
+  if(items.length === 1){
+    const it = items[0];
+    document.getElementById("rhNo").textContent = (it.cat==="TPL"?"":"Q") + it.id;
+    const tagInfo = TAG_MAP[it.tag] || ["orange","定型文"];
+    const tagEl = document.getElementById("rhTag");
+    tagEl.className = "qtag " + tagInfo[0];
+    tagEl.textContent = tagInfo[1];
+    document.getElementById("rhCat").textContent = it.catLabel || "";
+    document.getElementById("rhTitle").textContent = it.q;
+  } else {
+    document.getElementById("rhNo").textContent = items.length + "件";
+    document.getElementById("rhTag").className = "qtag blue";
+    document.getElementById("rhTag").textContent = "複数選択";
+    document.getElementById("rhCat").textContent = "";
+    document.getElementById("rhTitle").textContent = items.map(it=> (it.cat==="TPL"?"定":"Q")+it.id).join(" / ");
+  }
+  let html = "";
+  items.forEach((it, idx)=>{
+    const n = idx+1;
+    const showIdx = items.length > 1;
+    if(it.special === "office"){
+      html += '<div class="office-slide">'+
+              '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
+              (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
+              '<h1>🏢 事務局に相談します</h1>'+
+              '<p>誠に恐れ入りますが、この件につきましては、<br>事務局とも相談の上、改めてご回答申し上げます。</p>'+
+              '<p style="margin-top:28px;font-size:18px;color:#78350f">― お時間を頂戴いたします。―</p>'+
+              '</div>';
+      return;
+    }
+    if(it.special === "ai"){
+      html += '<div class="ai-paste-box">'+
+              '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
+              (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
+              '<label>🎤 受けた質問（コピペして編集可）</label>'+
+              '<textarea id="aiQInput" class="ai-q" placeholder="例：配当政策について教えてください">'+ escapeHtml(state.aiQ) +'</textarea>'+
+              '<label>🤖 AI回答（Claude 等で作成した回答をペースト）</label>'+
+              '<textarea id="aiAInput" placeholder="ここに回答をペーストしてください。そのまま表示されます。">'+ escapeHtml(state.aiA) +'</textarea>'+
+              '<div class="row">'+
+                '<button id="aiApply">✅ 表示を更新</button>'+
+                '<button id="aiClear" class="secondary">クリア</button>'+
+                '<span style="font-size:11px;color:#64748b;margin-left:auto">'+ (state.aiA.length) +'文字</span>'+
+              '</div>';
+      if(state.aiA){
+        html += '<div style="margin-top:20px;border-top:2px solid #e2e8f0;padding-top:20px">'+
+                '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px;background:#0891b2">AI</span>'+ escapeHtml(state.aiQ || "（質問未入力）") +'</div>'+
+                '<div class="answer-label">── 回 答 ──</div>'+
+                '<div class="answer-text">'+ escapeHtml(state.aiA) +'</div>'+
+                '</div>';
+      }
+      html += '</div>';
+      return;
+    }
+    const prefix = it.cat==="TPL" ? "定" : "Q";
+    html += '<div class="answer-box idx-'+n+'">'+
+            '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
+            (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
+            '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px">'+ prefix + it.id +'</span>'+ escapeHtml(it.q) +'</div>'+
+            '<div class="answer-label">── 回 答 ──</div>'+
+            '<div class="answer-text">'+ escapeHtml(it.a) +'</div>';
+    if(it.src) html += '<div class="answer-src">📎 '+ escapeHtml(it.src) +'</div>';
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  body.querySelectorAll(".remove-card").forEach(btn=>{
+    btn.addEventListener("click",(ev)=>{
+      ev.stopPropagation();
+      const k = btn.dataset.k;
+      const i = state.checked.indexOf(k);
+      if(i>=0){ state.checked.splice(i,1); render(); }
+    });
+  });
+  const aiApply = document.getElementById("aiApply");
+  if(aiApply){
+    aiApply.addEventListener("click",()=>{
+      state.aiQ = document.getElementById("aiQInput").value;
+      state.aiA = document.getElementById("aiAInput").value;
+      renderRight();
+    });
+    document.getElementById("aiClear").addEventListener("click",()=>{
+      state.aiQ=""; state.aiA="";
+      renderRight();
+    });
+  }
   document.documentElement.style.setProperty("--answer-size", state.answerSize+"px");
 }
+function pushSpecial(k){
+  const i = state.checked.indexOf(k);
+  if(i>=0){ state.checked.splice(i,1); render(); return; }
+  if(state.checked.length >= MAX_CHECKED){ toastLimit(); return; }
+  state.checked.push(k);
+  render();
+}
+function showSelected(){ renderRight(); }
 function adjSize(d){
   state.answerSize = Math.max(16, Math.min(72, state.answerSize + d));
   document.getElementById("sizeVal").textContent = state.answerSize + "px";
   document.documentElement.style.setProperty("--answer-size", state.answerSize+"px");
 }
 function copyAnswer(){
-  const it = state.filtered[state.selected];
-  if(!it) return;
-  navigator.clipboard.writeText(it.a).then(()=>{
+  const items = state.checked.map(findByKey).filter(Boolean);
+  if(items.length===0) return;
+  const text = items.map((it,i)=>{
+    const prefix = it.cat==="TPL" ? "定" : "Q";
+    const hd = items.length>1 ? `【${i+1}】${prefix}${it.id} ${it.q}\n` : "";
+    return hd + it.a;
+  }).join("\n\n――――――\n\n") + "\n\n以上、ご回答申し上げました。\n他にご質問はございませんでしょうか？";
+  navigator.clipboard.writeText(text).then(()=>{
     const btn = event.target;
     const orig = btn.textContent;
     btn.textContent = "✓ コピー済み";
@@ -387,12 +619,17 @@ document.addEventListener("keydown",(e)=>{
     e.preventDefault();
     if(state.filtered.length===0) return;
     state.selected = Math.min(state.filtered.length-1, state.selected<0?0:state.selected+1);
-    render(); showSelected();
+    render();
   } else if(e.key==="ArrowUp"){
     e.preventDefault();
     if(state.filtered.length===0) return;
     state.selected = Math.max(0, state.selected-1);
-    render(); showSelected();
+    render();
+  } else if(e.key===" " && !isInput){
+    e.preventDefault();
+    if(state.selected>=0 && state.filtered[state.selected]){
+      toggleCheck(keyOf(state.filtered[state.selected]));
+    }
   } else if(e.key==="Enter"){
     if(e.target.id==="jumpInput"){
       const v = e.target.value.trim();
@@ -406,7 +643,10 @@ document.addEventListener("keydown",(e)=>{
           document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab===target.cat));
           render();
           const idx = state.filtered.findIndex(x=>x.id===target.id && x.cat===target.cat);
-          if(idx>=0){ state.selected = idx; render(); showSelected(); }
+          if(idx>=0){
+            state.selected = idx;
+            toggleCheck(keyOf(target));
+          }
         } else {
           e.target.style.background="#fee2e2";
           setTimeout(()=>{e.target.style.background="";},600);
@@ -414,11 +654,34 @@ document.addEventListener("keydown",(e)=>{
         e.target.value = "";
         e.target.blur();
       }
-    } else {
-      if(state.selected>=0) showSelected();
+    } else if(!isInput){
+      if(state.selected>=0 && state.filtered[state.selected]){
+        toggleCheck(keyOf(state.filtered[state.selected]));
+      }
     }
   }
 });
+
+// Closing dock のドラッグ
+(function initDrag(){
+  const dock = document.getElementById("closingDock");
+  if(!dock) return;
+  let down=false, sx=0, sy=0, ox=0, oy=0;
+  dock.addEventListener("mousedown",(e)=>{
+    down=true; sx=e.clientX; sy=e.clientY;
+    const r = dock.getBoundingClientRect(); ox=r.left; oy=r.top;
+    dock.style.transition="none";
+  });
+  window.addEventListener("mousemove",(e)=>{
+    if(!down) return;
+    const nx = ox + (e.clientX - sx);
+    const ny = oy + (e.clientY - sy);
+    dock.style.left = Math.max(0, Math.min(window.innerWidth - dock.offsetWidth, nx)) + "px";
+    dock.style.top  = Math.max(0, Math.min(window.innerHeight - dock.offsetHeight, ny)) + "px";
+    dock.style.right = "auto"; dock.style.bottom = "auto";
+  });
+  window.addEventListener("mouseup",()=>{ down=false; });
+})();
 document.getElementById("searchInput").addEventListener("input",(e)=>{
   state.query = e.target.value;
   state.selected = -1;
@@ -430,6 +693,9 @@ function parseInitial(){
 }
 buildTabs();
 buildScope();
+buildModes();
+document.getElementById("btnOffice").addEventListener("click",()=>pushSpecial("SP:OFFICE"));
+document.getElementById("btnAiPaste").addEventListener("click",()=>pushSpecial("SP:AI"));
 parseInitial();
 render();
 </script>
