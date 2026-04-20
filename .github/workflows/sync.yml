@@ -1,0 +1,63 @@
+name: Sync from Google Sheets
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # 5分おき（GitHub Actions最短間隔）
+  workflow_dispatch:        # 手動実行可
+  push:
+    branches: [main]
+    paths:
+      - "build.py"
+      - ".github/workflows/sync.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-sheets
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install cryptography
+
+      - name: Build
+        id: build
+        env:
+          PODIUM_PW: ${{ secrets.PODIUM_PW || 'besterra' }}
+        run: python build.py
+
+      - name: Check changes
+        id: diff
+        run: |
+          if git diff --quiet index.html; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No content change."
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Content changed."
+          fi
+
+      - name: Commit & Push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          TS=$(date -u +"%Y-%m-%d %H:%M UTC")
+          git add index.html .last-content-hash
+          git commit -m "chore: sync Q&A from Sheets ($TS)"
+          git push
