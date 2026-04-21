@@ -153,19 +153,28 @@ header button.primary:hover{background:#b91c1c}
 .scope-row{display:flex;gap:6px;flex-wrap:wrap}
 .scope-btn{padding:5px 10px;background:#334155;color:#cbd5e1;border:none;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
 .scope-btn.active{background:#3b82f6;color:#fff}
-.tab-row{display:flex;gap:4px;padding:6px 8px 0;background:#0b1220;border-bottom:2px solid #1e293b;flex-shrink:0;overflow-x:auto}
-.tab-row::-webkit-scrollbar{height:8px}
-.tab-row::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
-.tab-row::-webkit-scrollbar-track{background:#0b1220}
-.tab-btn{padding:9px 14px;background:#1e293b;color:#e2e8f0;border:2px solid #334155;border-bottom:none;border-radius:7px 7px 0 0;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;position:relative;transition:background .12s,color .12s}
-.tab-btn:hover{background:#334155;color:#fff;border-color:#64748b}
-.tab-btn.active{background:#3b82f6;color:#fff;border-color:#60a5fa;box-shadow:0 -2px 8px rgba(59,130,246,.3)}
-.tab-btn.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;background:#fbbf24}
-.tpl-row{display:none;padding:5px 8px;background:#0f172a;border-bottom:1px solid #334155;flex-shrink:0}
-.tpl-row.on{display:flex}
-.tpl-btn{width:100%;padding:7px 10px;background:#3b0764;color:#fbbf24;border:2px solid #7c3aed;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left;font-family:inherit}
-.tpl-btn:hover{background:#581c87}
-.tpl-btn.active{background:#7c3aed;color:#fff;border-color:#fbbf24}
+.cat-dropdown{position:relative;padding:8px 12px;background:#1e293b;border-bottom:2px solid #334155;flex-shrink:0}
+.cat-select-btn{width:100%;padding:11px 16px;background:#0f172a;color:#fff;border:2px solid #3b82f6;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;transition:background .12s,border-color .12s}
+.cat-select-btn:hover{background:#1e3a8a;border-color:#60a5fa}
+.cat-select-btn.on{background:#1e3a8a;border-color:#fbbf24;border-radius:8px 8px 0 0}
+.cat-select-label{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-select-arrow{font-size:11px;color:#fbbf24;margin-left:10px;transition:transform .2s}
+.cat-select-btn.on .cat-select-arrow{transform:rotate(180deg)}
+.cat-popup{position:absolute;top:calc(100% - 2px);left:12px;right:12px;background:#0f172a;border:2px solid #fbbf24;border-top:none;border-radius:0 0 8px 8px;max-height:360px;overflow-y:auto;z-index:180;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.cat-popup.on{display:block}
+.cat-popup::-webkit-scrollbar{width:10px}
+.cat-popup::-webkit-scrollbar-thumb{background:#475569;border-radius:5px}
+.cat-popup::-webkit-scrollbar-track{background:#0b1220}
+.cat-option{padding:11px 18px;color:#e2e8f0;cursor:pointer;font-size:13.5px;font-weight:700;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cat-option:hover{background:#1e40af;color:#fff}
+.cat-option.active{background:#3b82f6;color:#fff;position:relative}
+.cat-option.active::before{content:"✓ ";color:#fbbf24}
+.cat-option.tpl{background:#3b0764;color:#fbbf24}
+.cat-option.tpl:hover{background:#581c87;color:#fff}
+.cat-option.tpl.active{background:#7c3aed;color:#fff}
+.cat-option .cat-count{color:#94a3b8;font-size:12px;font-weight:700}
+.cat-option.active .cat-count{color:#fef3c7}
+.cat-divider{padding:6px 18px;background:#0b1220;color:#64748b;font-size:11px;font-weight:700;letter-spacing:.15em;border-bottom:1px solid #1e293b}
 .list-area{flex:1;overflow-y:auto;padding:6px 8px 40px}
 .list-area::-webkit-scrollbar{width:8px}
 .list-area::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
@@ -373,9 +382,12 @@ body.podium .office-slide .role-v,body.podium .office-slide .director-v{padding:
         <button class="scope-btn" data-scope="a">回答のみ</button>
       </div>
     </div>
-    <div class="tab-row" id="tabRow"></div>
-    <div class="tpl-row" id="tplRow">
-      <button class="tpl-btn" id="tplBtn" data-tab="TPL">📌 定型文リファレンス（T1〜TG 計8件）</button>
+    <div class="cat-dropdown" id="catDropdown">
+      <button class="cat-select-btn" id="catSelectBtn" type="button">
+        <span class="cat-select-label" id="catSelectLabel">全て (224)</span>
+        <span class="cat-select-arrow">▼</span>
+      </button>
+      <div class="cat-popup" id="catPopup"></div>
     </div>
     <div class="list-area" id="listArea"></div>
     <div class="quick-area">
@@ -448,49 +460,84 @@ function findByKey(k){
   return allPool.find(it => keyOf(it)===k) || null;
 }
 function buildTabs(){
-  const tr = document.getElementById("tabRow");
-  const tplRow = document.getElementById("tplRow");
-  let html = '';
+  const popup = document.getElementById("catPopup");
+  const btn = document.getElementById("catSelectBtn");
+  const lbl = document.getElementById("catSelectLabel");
+  if(!popup || !btn || !lbl) return;
+  const opts = [];
+  let currentLabel = "";
   if(state.mode === "accident"){
-    html += '<button class="tab-btn active" data-tab="ALL">全て('+QA.length+')</button>';
+    opts.push({key:"ALL", label:"全て", n:QA.length, cls:""});
     for(const [k,label,n] of CATS){
       if(n === 0) continue;
-      const short = label.length>14 ? label.substring(0,12)+"…" : label;
-      html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+' ('+n+'件)">'+short+'('+n+')</button>';
+      opts.push({key:k, label:label, n:n, cls:""});
     }
-    tplRow.classList.add("on");
+    opts.push({divider:"── 定型文（参考） ──"});
+    opts.push({key:"TPL", label:"📌 定型文リファレンス", n:TEMPLATES.length, cls:"tpl"});
   } else {
-    tplRow.classList.remove("on");
-    html += '<button class="tab-btn active" data-tab="ALL">全て('+GENERAL.length+')</button>';
+    opts.push({key:"ALL", label:"全て", n:GENERAL.length, cls:""});
     for(const [k,label,n] of GENERAL_CATS){
       if(n === 0) continue;
-      const short = label.length>12 ? label.substring(0,11)+"…" : label;
-      html += '<button class="tab-btn" data-tab="'+k+'" title="'+label+' ('+n+'件)">'+short+'('+n+')</button>';
+      opts.push({key:k, label:label, n:n, cls:""});
     }
   }
-  tr.innerHTML = html;
-  tr.querySelectorAll(".tab-btn").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      state.tab = btn.dataset.tab;
-      tr.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b===btn));
-      document.getElementById("tplBtn").classList.remove("active");
+  let html = "";
+  for(const o of opts){
+    if(o.divider){ html += '<div class="cat-divider">'+o.divider+'</div>'; continue; }
+    const act = (o.key === state.tab) ? " active" : "";
+    if(act){ currentLabel = o.label + " (" + o.n + ")"; }
+    html += '<div class="cat-option '+o.cls+act+'" data-tab="'+o.key+'">'+
+              '<span>'+o.label+'</span>'+
+              '<span class="cat-count">'+o.n+'</span>'+
+            '</div>';
+  }
+  popup.innerHTML = html;
+  if(!currentLabel){
+    // 現在のタブが候補にない → ALLへリセット
+    state.tab = "ALL";
+    const allOpt = opts.find(x => x.key === "ALL");
+    currentLabel = allOpt ? (allOpt.label + " (" + allOpt.n + ")") : "全て";
+    popup.querySelectorAll(".cat-option").forEach(el=>{
+      el.classList.toggle("active", el.dataset.tab === "ALL");
+    });
+  }
+  lbl.textContent = currentLabel;
+  popup.querySelectorAll(".cat-option").forEach(el=>{
+    el.addEventListener("click",()=>{
+      state.tab = el.dataset.tab;
       state.selected = -1;
+      closeCatPopup();
+      buildTabs();
       render();
     });
   });
-  // 定型文専用ボタン
-  const tplBtn = document.getElementById("tplBtn");
-  tplBtn.classList.toggle("active", state.tab === "TPL");
-  tplBtn.onclick = () => {
-    state.tab = "TPL";
-    tr.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    tplBtn.classList.add("active");
-    state.selected = -1;
-    render();
-  };
   document.getElementById("modeAccidentCount").textContent = "("+(QA.length + TEMPLATES.length)+")";
   document.getElementById("modeGeneralCount").textContent = "("+GENERAL.length+")";
 }
+function openCatPopup(){
+  document.getElementById("catPopup").classList.add("on");
+  document.getElementById("catSelectBtn").classList.add("on");
+}
+function closeCatPopup(){
+  document.getElementById("catPopup").classList.remove("on");
+  document.getElementById("catSelectBtn").classList.remove("on");
+}
+(function initCatDropdown(){
+  const btn = document.getElementById("catSelectBtn");
+  if(!btn) return;
+  btn.addEventListener("click",(ev)=>{
+    ev.stopPropagation();
+    const on = document.getElementById("catPopup").classList.contains("on");
+    if(on) closeCatPopup(); else openCatPopup();
+  });
+  document.addEventListener("click",(ev)=>{
+    const dd = document.getElementById("catDropdown");
+    if(dd && !dd.contains(ev.target)) closeCatPopup();
+  });
+  document.addEventListener("keydown",(ev)=>{
+    if(ev.key === "Escape") closeCatPopup();
+  });
+})();
 function buildModes(){
   document.querySelectorAll(".mode-btn").forEach(btn=>{
     btn.addEventListener("click",()=>{
