@@ -253,6 +253,8 @@ body.podium .kbd-hint{display:none !important}
 button#syncBtn.inline-sync{background:#16a34a;color:#fff;border:2px solid #86efac;padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;margin-left:8px;cursor:pointer;font-family:inherit;vertical-align:middle;line-height:1.3}
 button#syncBtn.inline-sync:hover{background:#15803d}
 button#syncBtn.inline-sync:disabled{background:#475569;border-color:#334155;cursor:wait;opacity:.7}
+button#clearAllBtnHdr.inline-clear{background:#dc2626;color:#fff;border:2px solid #fca5a5;padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;margin-left:6px;cursor:pointer;font-family:inherit;vertical-align:middle;line-height:1.3}
+button#clearAllBtnHdr.inline-clear:hover{background:#b91c1c}
 .sync-progress{display:none;position:fixed;top:0;left:0;right:0;height:4px;background:rgba(51,65,85,.5);z-index:500;overflow:hidden}
 .sync-progress.on{display:block}
 .sync-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#3b82f6 0%,#22c55e 100%);box-shadow:0 0 12px rgba(34,197,94,.8);transition:width .25s ease-out}
@@ -317,11 +319,10 @@ body.podium .office-slide p{font-size:28px}
 <body>
 <header>
   <div>
-    <div class="title">ベステラ㈱ 株主総会 <span style="color:#f87171">演台用Q&amp;A</span><span class="sync-badge" title="Google Sheets から自動同期">🔄 SHEETS同期</span><button onclick="syncFromSheets()" id="syncBtn" class="inline-sync" title="Google スプレッドシートから最新データを取得">🔄 スプシ同期</button></div>
+    <div class="title">ベステラ㈱ 株主総会 <span style="color:#f87171">演台用Q&amp;A</span><span class="sync-badge" title="Google Sheets から自動同期">🔄 SHEETS同期</span><button onclick="syncFromSheets()" id="syncBtn" class="inline-sync" title="Google スプレッドシートから最新データを取得">🔄 スプシ同期</button><button onclick="clearAllChecks()" id="clearAllBtnHdr" class="inline-clear" title="選択を全て解除">✕ 全解除</button></div>
     <div class="meta">2026年4月23日 株主総会 ／ データ同期 __BUILD_TIME__ ／ 全__TOTAL__問＋定型文__TPL__件</div>
   </div>
   <div class="actions">
-    <button onclick="clearAllChecks()" id="clearAllBtnHdr" title="選択を全て解除">✕ 全解除</button>
     <button onclick="togglePodium()" class="primary" title="演台モード (F)">🖥 演台モード <span class="kbd">F</span></button>
   </div>
 </header>
