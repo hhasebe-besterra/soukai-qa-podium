@@ -392,7 +392,7 @@ body.podium .office-slide .role-v,body.podium .office-slide .director-v{padding:
     <div class="list-area" id="listArea"></div>
     <div class="quick-area">
       <button class="quick-btn" id="btnOffice">🏢 事務局に相談（画面に表示）</button>
-      <button class="quick-btn ai" id="btnAiPaste">🤖 AI回答をペースト（想定外質問用）</button>
+      <button class="quick-btn ai" id="btnAiPaste">🤖 AI回答</button>
     </div>
   </div>
   <div class="pane-right">
