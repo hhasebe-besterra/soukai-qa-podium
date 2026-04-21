@@ -200,6 +200,10 @@ header button.primary:hover{background:#b91c1c}
 .right-body::-webkit-scrollbar{width:12px}
 .right-body::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:6px}
 .answer-box{background:#fff;border:2px solid #cbd5e1;border-radius:12px;padding:36px 44px;box-shadow:0 4px 16px rgba(0,0,0,.08);max-width:1200px;margin:0 auto 20px}
+.answer-box.preview,.office-slide.preview{opacity:.42;filter:saturate(.55);border-style:dashed !important;position:relative;pointer-events:none}
+.answer-box.preview::after,.office-slide.preview::after{content:"👁 プレビュー（ホバー中）";position:absolute;top:10px;right:14px;background:#64748b;color:#fff;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.05em}
+.answer-box.preview .card-q,.answer-box.preview .answer-text,.answer-box.preview .answer-label{color:#64748b !important}
+body.podium .answer-box.preview{opacity:.35}
 .answer-box.idx-1{border-color:#3b82f6;border-width:3px}
 .answer-box.idx-2{border-color:#8b5cf6;border-width:3px}
 .answer-box.idx-3{border-color:#f59e0b;border-width:3px}
@@ -246,9 +250,9 @@ body.podium .kbd-hint{display:none !important}
 .sync-badge.syncing{background:#3b82f6;animation:syncpulse 1s infinite}
 .sync-badge.err{background:#dc2626}
 @keyframes syncpulse{0%,100%{opacity:1}50%{opacity:.5}}
-header button#syncBtn{background:#16a34a;border:2px solid #86efac;padding:7px 14px;font-size:12.5px}
-header button#syncBtn:hover{background:#15803d}
-header button#syncBtn:disabled{background:#475569;border-color:#334155;cursor:wait;opacity:.7}
+button#syncBtn.inline-sync{background:#16a34a;color:#fff;border:2px solid #86efac;padding:3px 10px;font-size:11px;font-weight:700;border-radius:5px;margin-left:8px;cursor:pointer;font-family:inherit;vertical-align:middle;line-height:1.3}
+button#syncBtn.inline-sync:hover{background:#15803d}
+button#syncBtn.inline-sync:disabled{background:#475569;border-color:#334155;cursor:wait;opacity:.7}
 .sync-progress{display:none;position:fixed;top:0;left:0;right:0;height:4px;background:rgba(51,65,85,.5);z-index:500;overflow:hidden}
 .sync-progress.on{display:block}
 .sync-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#3b82f6 0%,#22c55e 100%);box-shadow:0 0 12px rgba(34,197,94,.8);transition:width .25s ease-out}
@@ -313,11 +317,10 @@ body.podium .office-slide p{font-size:28px}
 <body>
 <header>
   <div>
-    <div class="title">ベステラ㈱ 株主総会 <span style="color:#f87171">演台用Q&amp;A</span><span class="sync-badge" title="Google Sheets から自動同期">🔄 SHEETS同期</span></div>
+    <div class="title">ベステラ㈱ 株主総会 <span style="color:#f87171">演台用Q&amp;A</span><span class="sync-badge" title="Google Sheets から自動同期">🔄 SHEETS同期</span><button onclick="syncFromSheets()" id="syncBtn" class="inline-sync" title="Google スプレッドシートから最新データを取得">🔄 スプシ同期</button></div>
     <div class="meta">2026年4月23日 株主総会 ／ データ同期 __BUILD_TIME__ ／ 全__TOTAL__問＋定型文__TPL__件</div>
   </div>
   <div class="actions">
-    <button onclick="syncFromSheets()" id="syncBtn" title="Google Sheets から最新データを取得">🔄 再同期</button>
     <button onclick="clearAllChecks()" id="clearAllBtnHdr" title="選択を全て解除">✕ 全解除</button>
     <button onclick="togglePodium()" class="primary" title="演台モード (F)">🖥 演台モード <span class="kbd">F</span></button>
   </div>
@@ -403,7 +406,7 @@ const MAX_CHECKED = 4;
 const SPECIAL = {
   OFFICE: {id:"OFFICE", cat:"SP", catLabel:"特別スライド", q:"事務局に相談します", a:"", tag:"declined", src:"", special:"office"},
 };
-let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28, checked:[], mode:"accident", aiQ:"", aiA:"" };
+let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28, checked:[], mode:"accident", aiQ:"", aiA:"", hovered:null };
 function keyOf(it){ return (it.cat||"") + ":" + it.id + (it.mode==="general"?":G":""); }
 function findByKey(k){
   if(k==="SP:OFFICE") return SPECIAL.OFFICE;
@@ -534,6 +537,19 @@ function render(){
       state.selected = parseInt(el.dataset.idx,10);
       render(); renderRight(); enterPodium();
     });
+    el.addEventListener("mouseenter",()=>{
+      const k = el.dataset.key;
+      if(state.checked.indexOf(k) >= 0) return;
+      if(state.hovered === k) return;
+      state.hovered = k;
+      renderRight();
+    });
+    el.addEventListener("mouseleave",()=>{
+      if(state.hovered === el.dataset.key){
+        state.hovered = null;
+        renderRight();
+      }
+    });
   });
   if(state.selected>=0 && state.selected<list.length){
     const sel = area.querySelector(".list-item.selected");
@@ -571,27 +587,35 @@ function renderRight(){
   document.getElementById("counterNum").textContent = state.checked.length;
   chip.classList.toggle("on", state.checked.length>0);
   const items = state.checked.map(findByKey).filter(Boolean);
-  if(items.length === 0){
+  let hoveredItem = null;
+  if(state.hovered && state.checked.indexOf(state.hovered) < 0){
+    hoveredItem = findByKey(state.hovered);
+  }
+  if(items.length === 0 && !hoveredItem){
     head.style.display = "none";
-    body.innerHTML = '<div class="empty-hint"><h2>👈 左の □ にチェックを入れてください（最大4件）</h2><p>クリックで✓／もう一度クリックで解除　・　ダブルクリックでその1件だけ選んで演台モード</p></div>';
+    body.innerHTML = '<div class="empty-hint"><h2>👈 左の □ にチェックを入れてください（最大4件）</h2><p>質問にマウスを乗せるとこの画面に薄くプレビューされます<br>クリックで✓／もう一度クリックで解除　・　ダブルクリックでその1件だけ選んで演台モード</p></div>';
     return;
   }
-  head.style.display = "flex";
-  if(items.length === 1){
-    const it = items[0];
-    document.getElementById("rhNo").textContent = (it.cat==="TPL"?"":"Q") + it.id;
-    const tagInfo = TAG_MAP[it.tag] || ["orange","定型文"];
-    const tagEl = document.getElementById("rhTag");
-    tagEl.className = "qtag " + tagInfo[0];
-    tagEl.textContent = tagInfo[1];
-    document.getElementById("rhCat").textContent = it.catLabel || "";
-    document.getElementById("rhTitle").textContent = it.q;
+  if(items.length === 0){
+    head.style.display = "none";
   } else {
-    document.getElementById("rhNo").textContent = items.length + "件";
-    document.getElementById("rhTag").className = "qtag blue";
-    document.getElementById("rhTag").textContent = "複数選択";
-    document.getElementById("rhCat").textContent = "";
-    document.getElementById("rhTitle").textContent = items.map(it=> (it.cat==="TPL"?"定":"Q")+it.id).join(" / ");
+    head.style.display = "flex";
+    if(items.length === 1){
+      const it = items[0];
+      document.getElementById("rhNo").textContent = (it.cat==="TPL"?"":"Q") + it.id;
+      const tagInfo = TAG_MAP[it.tag] || ["orange","定型文"];
+      const tagEl = document.getElementById("rhTag");
+      tagEl.className = "qtag " + tagInfo[0];
+      tagEl.textContent = tagInfo[1];
+      document.getElementById("rhCat").textContent = it.catLabel || "";
+      document.getElementById("rhTitle").textContent = it.q;
+    } else {
+      document.getElementById("rhNo").textContent = items.length + "件";
+      document.getElementById("rhTag").className = "qtag blue";
+      document.getElementById("rhTag").textContent = "複数選択";
+      document.getElementById("rhCat").textContent = "";
+      document.getElementById("rhTitle").textContent = items.map(it=> (it.cat==="TPL"?"定":"Q")+it.id).join(" / ");
+    }
   }
   let html = "";
   items.forEach((it, idx)=>{
@@ -643,6 +667,26 @@ function renderRight(){
     if(it.src) html += '<div class="answer-src">📎 '+ escapeHtml(it.src) +'</div>';
     html += '</div>';
   });
+  // ── ホバー中の項目をプレビュー（薄く表示）──
+  if(hoveredItem){
+    const it = hoveredItem;
+    if(it.special === "office"){
+      html += '<div class="office-slide preview">'+
+              '<h1>🏢 事務局に相談します</h1>'+
+              '<p>誠に恐れ入りますが、この件につきましては、<br>事務局とも相談の上、改めてご回答申し上げます。</p>'+
+              '</div>';
+    } else if(it.special === "ai"){
+      // AI枠はプレビュー対象外
+    } else {
+      const prefix = it.cat==="TPL" ? "定" : (it.mode==="general" ? "一般Q" : "Q");
+      html += '<div class="answer-box preview">'+
+              '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px;background:#64748b">'+ prefix + it.id +'</span>'+ escapeHtml(it.q) +'</div>'+
+              '<div class="answer-label">── 回 答 ──</div>'+
+              '<div class="answer-text">'+ escapeHtml(it.a) +'</div>';
+      if(it.src) html += '<div class="answer-src">📎 '+ escapeHtml(it.src) +'</div>';
+      html += '</div>';
+    }
+  }
   body.innerHTML = html;
   body.querySelectorAll(".remove-card").forEach(btn=>{
     btn.addEventListener("click",(ev)=>{
@@ -801,7 +845,7 @@ async function syncFromSheets(){
   const badge = document.querySelector(".sync-badge");
   if(!btn || btn.disabled) return;
   btn.disabled = true;
-  btn.textContent = "🔄 同期中...";
+  btn.textContent = "🔄 同期中";
   if(badge){ badge.classList.add("syncing"); badge.classList.remove("err"); badge.textContent = "🔄 同期中"; }
   prog.classList.add("on");
   setProgress(8);
@@ -845,7 +889,7 @@ async function syncFromSheets(){
       setProgress(0);
     }, 500);
     btn.disabled = false;
-    btn.textContent = "🔄 再同期";
+    btn.textContent = "🔄 スプシ同期";
   }
 }
 
