@@ -211,8 +211,23 @@ body.podium .answer-box.preview{opacity:.35}
 .answer-idx{display:inline-block;background:#dc2626;color:#fff;border-radius:50%;width:30px;height:30px;line-height:30px;text-align:center;font-size:16px;font-weight:900;margin-right:10px;vertical-align:middle}
 .remove-card{float:right;background:transparent;border:2px solid #cbd5e1;color:#64748b;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
 .remove-card:hover{background:#fee2e2;border-color:#ef4444;color:#991b1b}
-.card-q{font-size:16px;font-weight:700;color:#0f172a;line-height:1.6;margin-bottom:10px}
-body.podium .card-q{font-size:22px}
+.card-badges{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.badge-qno{background:#dc2626;color:#fff;padding:6px 18px;border-radius:8px;font-size:20px;font-weight:900;letter-spacing:.03em;box-shadow:0 2px 6px rgba(220,38,38,.3)}
+.badge-tag{padding:6px 16px;border-radius:8px;font-size:16px;font-weight:800;border:2px solid;letter-spacing:.05em}
+.badge-tag.green{background:#dcfce7;color:#14532d;border-color:#16a34a}
+.badge-tag.orange{background:#fef3c7;color:#78350f;border-color:#d97706}
+.badge-tag.red{background:#fee2e2;color:#7f1d1d;border-color:#dc2626}
+.badge-tag.blue{background:#dbeafe;color:#1e3a8a;border-color:#2563eb}
+.badge-cat{background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;padding:6px 16px;border-radius:8px;font-size:16px;font-weight:800;letter-spacing:.03em;box-shadow:0 2px 6px rgba(124,58,237,.3)}
+body.podium .card-badges{margin-bottom:22px;gap:12px}
+body.podium .badge-qno{font-size:30px;padding:9px 26px;border-radius:10px}
+body.podium .badge-tag{font-size:24px;padding:9px 22px;border-radius:10px;border-width:3px}
+body.podium .badge-cat{font-size:24px;padding:9px 22px;border-radius:10px}
+.answer-box.preview .badge-qno{background:#64748b;box-shadow:none}
+.answer-box.preview .badge-cat{background:#64748b;box-shadow:none}
+.answer-box.preview .badge-tag{opacity:.7}
+.card-q{font-size:20px;font-weight:700;color:#0f172a;line-height:1.6;margin-bottom:14px}
+body.podium .card-q{font-size:28px;line-height:1.55}
 .answer-label{font-size:13px;font-weight:700;color:#64748b;letter-spacing:.2em;margin-bottom:14px}
 .answer-text{font-size:var(--answer-size,28px);line-height:2.0;color:#0f172a;white-space:pre-wrap;font-weight:500;letter-spacing:.02em}
 .answer-src{margin-top:24px;padding-top:14px;border-top:1px dashed #cbd5e1;font-size:13px;color:#64748b;white-space:pre-wrap;line-height:1.7}
@@ -309,11 +324,27 @@ body.podium .counter-chip{display:none !important}
 .ai-gen-status.on{display:block}
 .ai-paste-box .interim{color:#64748b;font-style:italic}
 body.podium .ai-paste-box{border-style:solid}
-.office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:60px 50px;text-align:center;max-width:1200px;margin:0 auto 20px}
-.office-slide h1{font-size:48px;color:#7c2d12;margin-bottom:24px;font-weight:900;letter-spacing:.05em}
+.office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:30px 50px 50px;text-align:center;max-width:1200px;margin:0 auto 20px;position:relative}
+.office-slide h1{font-size:48px;color:#7c2d12;margin-bottom:24px;font-weight:900;letter-spacing:.05em;line-height:1.45}
+.office-slide h1.office-nominate{font-size:32px;line-height:1.7}
+.office-slide .role-v,.office-slide .director-v{background:#7c2d12;color:#fef3c7;padding:4px 14px;border-radius:8px;display:inline-block;margin:0 4px;font-weight:900}
 .office-slide p{font-size:20px;color:#451a03;line-height:1.8;margin-bottom:16px;font-weight:700}
-body.podium .office-slide h1{font-size:72px}
+.office-badge{display:inline-block;background:#7c2d12;color:#fef3c7;padding:5px 16px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.1em;margin-bottom:18px}
+.office-phase-row{display:flex;gap:6px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.office-ph-btn{background:#fef3c7;color:#7c2d12;border:2px solid #f59e0b;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.office-ph-btn:hover{background:#fde68a}
+.office-ph-btn.active{background:#7c2d12;color:#fef3c7;border-color:#451a03}
+.office-edit{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;padding:12px 16px;background:rgba(255,255,255,.5);border:2px dashed #f59e0b;border-radius:10px}
+.office-edit label{font-size:12px;font-weight:700;color:#7c2d12;letter-spacing:.1em}
+.office-edit input{padding:6px 12px;font-size:15px;font-weight:700;border:2px solid #f59e0b;border-radius:6px;background:#fff;color:#7c2d12;font-family:inherit;outline:none;width:140px;text-align:center}
+.office-edit input:focus{border-color:#451a03}
+body.podium .office-slide{padding:50px 40px 70px}
+body.podium .office-slide h1{font-size:96px;line-height:1.4}
+body.podium .office-slide h1.office-nominate{font-size:54px;line-height:1.7}
 body.podium .office-slide p{font-size:28px}
+body.podium .office-badge{font-size:16px;padding:8px 24px;margin-bottom:28px}
+body.podium .office-phase-row{display:none}
+body.podium .office-edit{display:none}
 </style>
 </head>
 <body>
@@ -407,7 +438,7 @@ const MAX_CHECKED = 4;
 const SPECIAL = {
   OFFICE: {id:"OFFICE", cat:"SP", catLabel:"特別スライド", q:"事務局に相談します", a:"", tag:"declined", src:"", special:"office"},
 };
-let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28, checked:[], mode:"accident", aiQ:"", aiA:"", hovered:null };
+let state = { tab:"ALL", scope:"both", query:"", selected:-1, filtered:[], answerSize:28, checked:[], mode:"accident", aiQ:"", aiA:"", hovered:null, officePhase:0, officeRole:"", officeDirector:"" };
 function keyOf(it){ return (it.cat||"") + ":" + it.id + (it.mode==="general"?":G":""); }
 function findByKey(k){
   if(k==="SP:OFFICE") return SPECIAL.OFFICE;
@@ -623,12 +654,37 @@ function renderRight(){
     const n = idx+1;
     const showIdx = items.length > 1;
     if(it.special === "office"){
+      const ph = state.officePhase|0;
+      const role = state.officeRole || "●●";
+      const director = state.officeDirector || "▲▲";
+      let phaseHtml = "";
+      if(ph === 0){
+        phaseHtml = '<div class="office-badge">① 事務局打ち合わせに入る前に</div>'+
+                    '<h1>少々お待ちください</h1>';
+      } else if(ph === 1){
+        phaseHtml = '<div class="office-badge">② 回答を申し上げる前に</div>'+
+                    '<h1>お待たせいたしました。</h1>';
+      } else {
+        phaseHtml = '<div class="office-badge">③ 回答者を指名して引き継ぐ</div>'+
+                    '<div class="office-edit">'+
+                      '<label>担当分野</label><input id="officeRoleInput" type="text" placeholder="例: 財務" value="'+ escapeAttr(state.officeRole) +'">'+
+                      '<label>取締役名</label><input id="officeDirectorInput" type="text" placeholder="例: 山田" value="'+ escapeAttr(state.officeDirector) +'">'+
+                    '</div>'+
+                    '<h1 class="office-nominate">'+
+                      'ただいまのご質問は、<span class="role-v">'+ escapeHtml(role) +'</span>を担当しております<br>'+
+                      '<span class="director-v">'+ escapeHtml(director) +'</span>取締役からご説明申し上げます。<br>'+
+                      '<span class="director-v">'+ escapeHtml(director) +'</span>取締役、お願いいたします。'+
+                    '</h1>';
+      }
       html += '<div class="office-slide">'+
               '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
               (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
-              '<h1>🏢 事務局に相談します</h1>'+
-              '<p>誠に恐れ入りますが、この件につきましては、<br>事務局とも相談の上、改めてご回答申し上げます。</p>'+
-              '<p style="margin-top:28px;font-size:18px;color:#78350f">― お時間を頂戴いたします。―</p>'+
+              '<div class="office-phase-row">'+
+                '<button class="office-ph-btn'+(ph===0?' active':'')+'" data-ph="0">① 少々お待ちください</button>'+
+                '<button class="office-ph-btn'+(ph===1?' active':'')+'" data-ph="1">② お待たせいたしました</button>'+
+                '<button class="office-ph-btn'+(ph===2?' active':'')+'" data-ph="2">③ 回答者指名</button>'+
+              '</div>'+
+              phaseHtml +
               '</div>';
       return;
     }
@@ -658,11 +714,18 @@ function renderRight(){
       html += '</div>';
       return;
     }
-    const prefix = it.cat==="TPL" ? "定" : "Q";
+    const prefix = it.cat==="TPL" ? "定" : (it.mode==="general" ? "一般Q" : "Q");
+    const tagInfo = TAG_MAP[it.tag] || ["orange","回答"];
+    const badgeCat = it.catLabel || "";
     html += '<div class="answer-box idx-'+n+'">'+
             '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
             (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
-            '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px">'+ prefix + it.id +'</span>'+ escapeHtml(it.q) +'</div>'+
+            '<div class="card-badges">'+
+              '<span class="badge-qno">'+ prefix + it.id +'</span>'+
+              '<span class="badge-tag '+tagInfo[0]+'">'+ tagInfo[1] +'</span>'+
+              (badgeCat ? '<span class="badge-cat">'+ escapeHtml(badgeCat) +'</span>' : '')+
+            '</div>'+
+            '<div class="card-q">'+ escapeHtml(it.q) +'</div>'+
             '<div class="answer-label">── 回 答 ──</div>'+
             '<div class="answer-text">'+ escapeHtml(it.a) +'</div>';
     if(it.src) html += '<div class="answer-src">📎 '+ escapeHtml(it.src) +'</div>';
@@ -680,8 +743,15 @@ function renderRight(){
       // AI枠はプレビュー対象外
     } else {
       const prefix = it.cat==="TPL" ? "定" : (it.mode==="general" ? "一般Q" : "Q");
+      const tagInfo = TAG_MAP[it.tag] || ["orange","回答"];
+      const badgeCat = it.catLabel || "";
       html += '<div class="answer-box preview">'+
-              '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px;background:#64748b">'+ prefix + it.id +'</span>'+ escapeHtml(it.q) +'</div>'+
+              '<div class="card-badges">'+
+                '<span class="badge-qno">'+ prefix + it.id +'</span>'+
+                '<span class="badge-tag '+tagInfo[0]+'">'+ tagInfo[1] +'</span>'+
+                (badgeCat ? '<span class="badge-cat">'+ escapeHtml(badgeCat) +'</span>' : '')+
+              '</div>'+
+              '<div class="card-q">'+ escapeHtml(it.q) +'</div>'+
               '<div class="answer-label">── 回 答 ──</div>'+
               '<div class="answer-text">'+ escapeHtml(it.a) +'</div>';
       if(it.src) html += '<div class="answer-src">📎 '+ escapeHtml(it.src) +'</div>';
@@ -696,6 +766,22 @@ function renderRight(){
       const i = state.checked.indexOf(k);
       if(i>=0){ state.checked.splice(i,1); render(); }
     });
+  });
+  body.querySelectorAll(".office-ph-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      state.officePhase = parseInt(btn.dataset.ph,10) || 0;
+      renderRight();
+    });
+  });
+  const roleInp = document.getElementById("officeRoleInput");
+  if(roleInp) roleInp.addEventListener("input",(e)=>{
+    state.officeRole = e.target.value;
+    body.querySelectorAll(".role-v").forEach(el=>{ el.textContent = state.officeRole || "●●"; });
+  });
+  const dirInp = document.getElementById("officeDirectorInput");
+  if(dirInp) dirInp.addEventListener("input",(e)=>{
+    state.officeDirector = e.target.value;
+    body.querySelectorAll(".director-v").forEach(el=>{ el.textContent = state.officeDirector || "▲▲"; });
   });
   const aiClear = document.getElementById("aiClear");
   if(aiClear){
