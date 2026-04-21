@@ -133,7 +133,7 @@ HTML_WRAPPER_TEMPLATE = r"""<!DOCTYPE html>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
-body{font-family:"Noto Sans JP","Hiragino Sans","Meiryo",sans-serif;background:#0f172a;color:#e2e8f0;font-size:15px;display:flex;flex-direction:column}
+body{font-family:"Noto Sans JP","Hiragino Sans","Meiryo",sans-serif;background:#0f172a;color:#e2e8f0;font-size:16px;display:flex;flex-direction:column}
 header{background:#1e293b;color:#fff;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:2px solid #334155;flex-shrink:0}
 header .title{font-size:15px;font-weight:700;letter-spacing:.02em}
 header .meta{font-size:11px;color:#94a3b8}
@@ -156,7 +156,7 @@ header button.primary:hover{background:#b91c1c}
 .tab-row{display:flex;gap:2px;padding:0 8px;background:#1e293b;border-bottom:1px solid #334155;flex-shrink:0;overflow-x:auto}
 .tab-row::-webkit-scrollbar{height:4px}
 .tab-row::-webkit-scrollbar-thumb{background:#475569}
-.tab-btn{padding:9px 10px;background:transparent;color:#94a3b8;border:none;border-bottom:3px solid transparent;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tab-btn{padding:10px 12px;background:transparent;color:#94a3b8;border:none;border-bottom:3px solid transparent;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 .tab-btn.active{color:#fff;border-bottom-color:#3b82f6}
 .tab-btn:hover{color:#e2e8f0}
 .tpl-row{display:none;padding:5px 8px;background:#0f172a;border-bottom:1px solid #334155;flex-shrink:0}
@@ -167,21 +167,19 @@ header button.primary:hover{background:#b91c1c}
 .list-area{flex:1;overflow-y:auto;padding:6px 8px 40px}
 .list-area::-webkit-scrollbar{width:8px}
 .list-area::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
-.list-item{padding:9px 12px;margin-bottom:3px;border-radius:6px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;border:2px solid transparent;background:#0f172a;transition:background .1s;flex-wrap:wrap;position:relative}
+.list-item{padding:12px 14px;margin-bottom:4px;border-radius:6px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;border:2px solid transparent;background:#0f172a;transition:background .1s;flex-wrap:wrap;position:relative}
 .list-item:hover{background:#27344a}
 .list-item.selected{background:#1e40af;border-color:#60a5fa}
 .list-item.selected .li-num{background:#dc2626}
 .list-item.checked{background:#0f3d26;border-color:#22c55e}
 .list-item.checked.selected{background:#1e40af;border-color:#60a5fa}
-.li-chk{flex-shrink:0;width:18px;height:18px;border:2px solid #64748b;border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;background:#1e293b;font-size:12px;font-weight:900;color:transparent}
+.li-chk{flex-shrink:0;width:22px;height:22px;border:2px solid #64748b;border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;background:#1e293b;font-size:14px;font-weight:900;color:transparent}
 .list-item.checked .li-chk{background:#22c55e;border-color:#22c55e;color:#0f172a}
 .list-item.checked .li-chk::after{content:"✓"}
 .li-order{position:absolute;top:6px;right:8px;min-width:18px;height:18px;padding:0 5px;background:#dc2626;color:#fff;border-radius:9px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center}
 .list-item.checked .li-order{display:flex}
-.li-num{flex-shrink:0;min-width:46px;height:22px;padding:0 6px;background:#334155;color:#fff;border-radius:4px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.li-q{flex:1;font-size:12.5px;line-height:1.5;color:#e2e8f0;font-weight:500;word-break:break-word;min-width:0}
-.li-a-preview{flex-basis:100%;margin-left:34px;margin-top:4px;padding-top:4px;border-top:1px dashed #334155;font-size:10.5px;line-height:1.45;color:#94a3b8;max-height:2.9em;overflow:hidden;position:relative}
-.list-item:hover .li-a-preview{max-height:none;color:#cbd5e1}
+.li-num{flex-shrink:0;min-width:54px;height:26px;padding:0 8px;background:#334155;color:#fff;border-radius:4px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.li-q{flex:1;font-size:15px;line-height:1.55;color:#e2e8f0;font-weight:500;word-break:break-word;min-width:0}
 .li-tag{flex-shrink:0;width:8px;height:8px;border-radius:50%;margin-top:6px}
 .li-tag.green{background:#22c55e}
 .li-tag.orange{background:#f59e0b}
@@ -247,8 +245,10 @@ body.podium .kbd-hint{display:none !important}
 body.podium .closing-dock{font-size:20px;padding:22px 30px;max-width:560px;border-width:4px}
 body.podium .closing-dock .cd-line{font-size:22px;line-height:1.85}
 body.podium .closing-dock .cd-label{font-size:12px}
-.counter-chip{position:fixed;top:14px;right:14px;background:#1e293b;color:#fbbf24;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;z-index:120;border:2px solid #fbbf24;display:none}
-.counter-chip.on{display:block}
+.counter-chip{position:fixed;top:14px;right:14px;background:#1e293b;color:#fbbf24;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:700;z-index:120;border:2px solid #fbbf24;display:none;gap:10px;align-items:center}
+.counter-chip.on{display:flex}
+.counter-chip .clear-all{background:#dc2626;color:#fff;border:none;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.counter-chip .clear-all:hover{background:#b91c1c}
 .mode-row{display:flex;background:#0f172a;padding:6px 6px;gap:4px;border-bottom:1px solid #334155;flex-shrink:0}
 .mode-btn{flex:1;padding:10px;background:#1e293b;color:#94a3b8;border:2px solid transparent;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .mode-btn.active{background:#dc2626;color:#fff;border-color:#fbbf24}
@@ -262,11 +262,21 @@ body.podium .closing-dock .cd-label{font-size:12px}
 .ai-paste-box{background:#fff;border:3px dashed #0891b2;border-radius:12px;padding:20px 24px;max-width:1200px;margin:0 auto 20px}
 .ai-paste-box textarea{width:100%;min-height:180px;padding:14px;border:2px solid #cbd5e1;border-radius:8px;font-size:16px;font-family:inherit;line-height:1.7;color:#0f172a;resize:vertical;outline:none}
 .ai-paste-box textarea:focus{border-color:#0891b2}
-.ai-paste-box .ai-q{width:100%;min-height:50px;font-size:14px;font-weight:700;margin-bottom:10px}
+.ai-paste-box .ai-q{width:100%;min-height:70px;font-size:15px;font-weight:700;margin-bottom:10px}
 .ai-paste-box label{display:block;font-size:12px;font-weight:700;color:#64748b;letter-spacing:.1em;margin-bottom:6px;margin-top:12px}
+.ai-paste-box .label-row{display:flex;align-items:center;gap:10px;margin-top:12px;margin-bottom:6px}
+.ai-paste-box .label-row label{margin:0;flex:0 0 auto}
+.ai-paste-box .mic-btn{background:#fff;color:#0891b2;border:2px solid #0891b2;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ai-paste-box .mic-btn:hover{background:#cffafe}
+.ai-paste-box .mic-btn.rec{background:#dc2626;color:#fff;border-color:#fbbf24;animation:recpulse 1s infinite}
+.ai-paste-box .mic-btn .mic-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor}
+.ai-paste-box .mic-status{font-size:11px;color:#64748b;margin-left:auto}
+.ai-paste-box .mic-btn.rec .mic-dot{background:#fff}
+@keyframes recpulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.8)}50%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
 .ai-paste-box .row{display:flex;gap:8px;margin-top:12px;align-items:center}
 .ai-paste-box .row button{background:#0891b2;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .ai-paste-box .row button.secondary{background:#475569}
+.ai-paste-box .interim{color:#64748b;font-style:italic}
 body.podium .ai-paste-box{border-style:solid}
 .office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:60px 50px;text-align:center;max-width:1200px;margin:0 auto 20px}
 .office-slide h1{font-size:48px;color:#7c2d12;margin-bottom:24px;font-weight:900;letter-spacing:.05em}
@@ -282,6 +292,7 @@ body.podium .office-slide p{font-size:28px}
     <div class="meta">2026年4月23日 株主総会 ／ データ同期 __BUILD_TIME__ ／ 全__TOTAL__問＋定型文__TPL__件</div>
   </div>
   <div class="actions">
+    <button onclick="clearAllChecks()" id="clearAllBtnHdr" title="選択を全て解除">✕ 全解除</button>
     <button onclick="togglePodium()" class="primary" title="演台モード (F)">🖥 演台モード <span class="kbd">F</span></button>
   </div>
 </header>
@@ -346,7 +357,7 @@ body.podium .office-slide p{font-size:28px}
   <span class="kbd">/</span> 検索  <span class="kbd">↑↓</span> 候補  <span class="kbd">Space/Enter</span> ✓<br>
   <span class="kbd">F</span> 演台ON/OFF  <span class="kbd">Esc</span> 閉じる
 </div>
-<div class="counter-chip" id="counterChip">選択中 <span id="counterNum">0</span> / 4</div>
+<div class="counter-chip" id="counterChip"><span>選択中 <span id="counterNum">0</span> / 4</span><button class="clear-all" id="clearAllBtn" title="全てのチェックを解除">✕ 全解除</button></div>
 <div class="closing-dock" id="closingDock" title="ドラッグで移動">
   <div class="cd-label">📢 回答の締めくくり（読み上げ）</div>
   <div class="cd-line">以上、ご回答申し上げました。</div>
@@ -473,14 +484,13 @@ function render(){
     const chk = checkIdx >= 0 ? "checked" : "";
     const order = checkIdx >= 0 ? (checkIdx+1) : "";
     const prefix = state.tab==="TPL" ? "定" : "Q";
-    const previewTxt = (it.a||"").replace(/\s+/g," ").slice(0,140);
-    html += '<div class="list-item '+sel+' '+chk+'" data-idx="'+idx+'" data-key="'+keyOf(it)+'" title="'+ escapeAttr(it.a||"") +'">'+
+    const tipTxt = "【回答】" + (it.a||"").replace(/\s+/g," ");
+    html += '<div class="list-item '+sel+' '+chk+'" data-idx="'+idx+'" data-key="'+keyOf(it)+'" title="'+ escapeAttr(tipTxt) +'">'+
             '<div class="li-chk" data-chk="1"></div>'+
             '<div class="li-num">'+ prefix + it.id +'</div>'+
             '<div class="li-q">'+ escapeHtml(it.q) +'</div>'+
             '<div class="li-tag '+tagColor+'"></div>'+
             '<div class="li-order">'+ order +'</div>'+
-            '<div class="li-a-preview">'+ escapeHtml(previewTxt) +'</div>'+
             '</div>';
   });
   area.innerHTML = html;
@@ -572,8 +582,12 @@ function renderRight(){
       html += '<div class="ai-paste-box">'+
               '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
               (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
-              '<label>🎤 受けた質問（コピペして編集可）</label>'+
-              '<textarea id="aiQInput" class="ai-q" placeholder="例：配当政策について教えてください">'+ escapeHtml(state.aiQ) +'</textarea>'+
+              '<div class="label-row">'+
+                '<label style="margin:0">🎤 受けた質問（マイクで録音 or 手入力）</label>'+
+                '<button id="micBtn" class="mic-btn" type="button"><span class="mic-dot"></span><span id="micLabel">録音開始</span></button>'+
+                '<span class="mic-status" id="micStatus"></span>'+
+              '</div>'+
+              '<textarea id="aiQInput" class="ai-q" placeholder="マイクボタンで録音すると、リアルタイムで文字起こしされます。手入力も可。">'+ escapeHtml(state.aiQ) +'</textarea>'+
               '<label>🤖 AI回答（Claude 等で作成した回答をペースト）</label>'+
               '<textarea id="aiAInput" placeholder="ここに回答をペーストしてください。そのまま表示されます。">'+ escapeHtml(state.aiA) +'</textarea>'+
               '<div class="row">'+
@@ -619,10 +633,97 @@ function renderRight(){
     });
     document.getElementById("aiClear").addEventListener("click",()=>{
       state.aiQ=""; state.aiA="";
+      if(_mic.running){ try{ _mic.rec.stop(); }catch(e){} }
       renderRight();
+    });
+    // マイク（Web Speech API）
+    const micBtn = document.getElementById("micBtn");
+    if(micBtn){
+      micBtn.addEventListener("click",()=>toggleMic());
+      if(_mic.running){
+        micBtn.classList.add("rec");
+        document.getElementById("micLabel").textContent = "録音停止";
+      }
+      const st = document.getElementById("micStatus");
+      if(st){
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if(!SR) st.textContent = "⚠ このブラウザは未対応（Chrome/Edge推奨）";
+        else st.textContent = _mic.running ? "● 録音中..." : "（Chrome/Edge で動作）";
+      }
+    }
+    // Qテキストエリアへの手入力も state に同期
+    document.getElementById("aiQInput").addEventListener("input",(e)=>{
+      _mic.manualBase = e.target.value;
+      state.aiQ = e.target.value;
     });
   }
   document.documentElement.style.setProperty("--answer-size", state.answerSize+"px");
+}
+function clearAllChecks(){
+  if(state.checked.length===0) return;
+  state.checked = [];
+  render();
+}
+const _mic = { rec:null, running:false, finalText:"", manualBase:"" };
+function toggleMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert("このブラウザは音声認識に対応していません。\nChrome または Edge でお試しください。"); return; }
+  const qEl = document.getElementById("aiQInput");
+  const micBtn = document.getElementById("micBtn");
+  const micLabel = document.getElementById("micLabel");
+  const micStatus = document.getElementById("micStatus");
+  if(_mic.running){ try{ _mic.rec.stop(); }catch(e){} return; }
+  _mic.finalText = qEl.value || "";
+  _mic.manualBase = _mic.finalText;
+  _mic.rec = new SR();
+  _mic.rec.lang = "ja-JP";
+  _mic.rec.continuous = true;
+  _mic.rec.interimResults = true;
+  _mic.rec.onresult = (ev)=>{
+    let interim = "";
+    for(let i=ev.resultIndex; i<ev.results.length; i++){
+      const r = ev.results[i];
+      const t = r[0].transcript;
+      if(r.isFinal){
+        const sep = (_mic.finalText && !_mic.finalText.endsWith("\n") && !_mic.finalText.endsWith("。")) ? " " : "";
+        _mic.finalText += sep + t;
+      } else {
+        interim += t;
+      }
+    }
+    const qLive = document.getElementById("aiQInput");
+    if(qLive) qLive.value = _mic.finalText + (interim ? "（" + interim + "）" : "");
+    state.aiQ = _mic.finalText;
+    const sEl = document.getElementById("micStatus");
+    if(sEl) sEl.textContent = "● 録音中..." + (interim ? " " + interim.slice(-20) : "");
+  };
+  _mic.rec.onerror = (e)=>{
+    console.warn("speech error", e);
+    const sEl = document.getElementById("micStatus");
+    if(sEl) sEl.textContent = "⚠ " + (e.error || "error");
+  };
+  _mic.rec.onend = ()=>{
+    _mic.running = false;
+    const b = document.getElementById("micBtn");
+    const lb = document.getElementById("micLabel");
+    const st = document.getElementById("micStatus");
+    if(b){ b.classList.remove("rec"); }
+    if(lb){ lb.textContent = "録音開始"; }
+    if(st){ st.textContent = "（停止中／もう一度押すと再開）"; }
+    state.aiQ = _mic.finalText;
+    const qLive = document.getElementById("aiQInput");
+    if(qLive) qLive.value = _mic.finalText;
+  };
+  try {
+    _mic.rec.start();
+    _mic.running = true;
+    micBtn.classList.add("rec");
+    micLabel.textContent = "録音停止";
+    if(micStatus) micStatus.textContent = "● 録音中...";
+  } catch(err){
+    console.warn(err);
+    if(micStatus) micStatus.textContent = "⚠ 起動失敗: " + err.message;
+  }
 }
 function pushSpecial(k){
   const i = state.checked.indexOf(k);
@@ -733,6 +834,7 @@ buildScope();
 buildModes();
 document.getElementById("btnOffice").addEventListener("click",()=>pushSpecial("SP:OFFICE"));
 document.getElementById("btnAiPaste").addEventListener("click",()=>pushSpecial("SP:AI"));
+document.getElementById("clearAllBtn").addEventListener("click",(ev)=>{ ev.stopPropagation(); clearAllChecks(); });
 parseInitial();
 render();
 </script>
