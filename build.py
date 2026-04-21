@@ -217,9 +217,13 @@ body.podium .card-q{font-size:22px}
 .actions-row button:hover{background:#334155}
 .actions-row button.big{background:#dc2626;font-size:13px;padding:10px 18px}
 .actions-row button.big:hover{background:#b91c1c}
-.size-ctl{display:flex;align-items:center;gap:4px;background:#1e293b;border-radius:6px;padding:3px}
-.size-ctl button{background:transparent;padding:4px 10px;font-size:14px}
-.size-ctl .size-val{color:#fff;font-size:11px;min-width:42px;text-align:center}
+.size-widget{position:fixed;top:110px;right:14px;display:flex;align-items:center;gap:4px;background:#1e293b;border:2px solid #475569;border-radius:8px;padding:4px 6px;z-index:120;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.size-widget .size-widget-label{color:#94a3b8;font-size:10px;font-weight:700;letter-spacing:.1em;padding:0 4px}
+.size-widget button{background:transparent;color:#fff;border:none;padding:5px 10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:4px}
+.size-widget button:hover{background:#334155;color:#fbbf24}
+.size-widget .size-val{color:#fbbf24;font-size:11px;min-width:42px;text-align:center;font-weight:700}
+body.podium .size-widget{top:14px;right:14px;border-color:#fbbf24;padding:6px 10px}
+body.podium .size-widget .size-widget-label{color:#fbbf24}
 .empty-hint{padding:80px 40px;text-align:center;color:#64748b}
 .empty-hint h2{font-size:22px;color:#1e293b;margin-bottom:16px}
 .empty-hint p{font-size:14px;line-height:1.8;margin-bottom:8px}
@@ -242,9 +246,9 @@ body.podium .kbd-hint{display:none !important}
 .sync-badge.syncing{background:#3b82f6;animation:syncpulse 1s infinite}
 .sync-badge.err{background:#dc2626}
 @keyframes syncpulse{0%,100%{opacity:1}50%{opacity:.5}}
-header button#syncBtn{background:#0891b2}
-header button#syncBtn:hover{background:#0e7490}
-header button#syncBtn:disabled{background:#475569;cursor:wait;opacity:.7}
+header button#syncBtn{background:#16a34a;border:2px solid #86efac;padding:7px 14px;font-size:12.5px}
+header button#syncBtn:hover{background:#15803d}
+header button#syncBtn:disabled{background:#475569;border-color:#334155;cursor:wait;opacity:.7}
 .sync-progress{display:none;position:fixed;top:0;left:0;right:0;height:4px;background:rgba(51,65,85,.5);z-index:500;overflow:hidden}
 .sync-progress.on{display:block}
 .sync-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#3b82f6 0%,#22c55e 100%);box-shadow:0 0 12px rgba(34,197,94,.8);transition:width .25s ease-out}
@@ -355,13 +359,6 @@ body.podium .office-slide p{font-size:28px}
         <div class="qtitle" id="rhTitle"></div>
       </div>
       <div class="actions-row">
-        <div class="size-ctl">
-          <button onclick="adjSize(-2)">A−</button>
-          <span class="size-val" id="sizeVal">28px</span>
-          <button onclick="adjSize(2)">A＋</button>
-        </div>
-        <button onclick="copyAnswer()">📋 コピー</button>
-        <button onclick="togglePodium()" class="big">🖥 演台モード</button>
         <button onclick="togglePodium()" class="exit-podium">✕ 演台終了</button>
       </div>
     </div>
@@ -374,6 +371,12 @@ body.podium .office-slide p{font-size:28px}
       </div>
     </div>
   </div>
+</div>
+<div class="size-widget" id="sizeWidget" title="回答文字サイズ（+/- キーでも調整可）">
+  <span class="size-widget-label">文字</span>
+  <button onclick="adjSize(-2)" title="小さく">A−</button>
+  <span class="size-val" id="sizeVal">28px</span>
+  <button onclick="adjSize(2)" title="大きく">A＋</button>
 </div>
 <button class="kbd-toggle" id="kbdToggle" title="ショートカット一覧">⌨</button>
 <div class="kbd-hint" id="kbdHint" style="display:none">
