@@ -239,6 +239,19 @@ body.podium .kbd-toggle{display:none}
 .kbd-hint{position:fixed;bottom:54px;left:14px;background:rgba(15,23,42,.92);color:#cbd5e1;padding:10px 14px;border-radius:6px;font-size:11px;z-index:200;line-height:1.8;pointer-events:none;border:1px solid #475569}
 body.podium .kbd-hint{display:none !important}
 .sync-badge{background:#22c55e;color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;margin-left:8px;font-weight:700}
+.sync-badge.syncing{background:#3b82f6;animation:syncpulse 1s infinite}
+.sync-badge.err{background:#dc2626}
+@keyframes syncpulse{0%,100%{opacity:1}50%{opacity:.5}}
+header button#syncBtn{background:#0891b2}
+header button#syncBtn:hover{background:#0e7490}
+header button#syncBtn:disabled{background:#475569;cursor:wait;opacity:.7}
+.sync-progress{display:none;position:fixed;top:0;left:0;right:0;height:4px;background:rgba(51,65,85,.5);z-index:500;overflow:hidden}
+.sync-progress.on{display:block}
+.sync-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#3b82f6 0%,#22c55e 100%);box-shadow:0 0 12px rgba(34,197,94,.8);transition:width .25s ease-out}
+.sync-toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;z-index:600;border:2px solid #22c55e;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none}
+.sync-toast.on{display:block;animation:toastin .3s ease-out}
+.sync-toast.err{border-color:#dc2626;color:#fecaca}
+@keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .closing-dock{position:fixed;right:14px;bottom:14px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03;padding:16px 22px;border-radius:12px;font-size:15px;font-weight:700;line-height:1.75;z-index:250;box-shadow:0 6px 20px rgba(0,0,0,.45);border:3px solid #fef3c7;max-width:400px;letter-spacing:.02em;cursor:move;user-select:none}
 .closing-dock .cd-label{font-size:10px;letter-spacing:.15em;color:#78350f;font-weight:900;margin-bottom:6px}
 .closing-dock .cd-line{color:#0f172a;font-size:16px}
@@ -292,10 +305,13 @@ body.podium .office-slide p{font-size:28px}
     <div class="meta">2026年4月23日 株主総会 ／ データ同期 __BUILD_TIME__ ／ 全__TOTAL__問＋定型文__TPL__件</div>
   </div>
   <div class="actions">
+    <button onclick="syncFromSheets()" id="syncBtn" title="Google Sheets から最新データを取得">🔄 再同期</button>
     <button onclick="clearAllChecks()" id="clearAllBtnHdr" title="選択を全て解除">✕ 全解除</button>
     <button onclick="togglePodium()" class="primary" title="演台モード (F)">🖥 演台モード <span class="kbd">F</span></button>
   </div>
 </header>
+<div class="sync-progress" id="syncProgress"><div class="sync-bar-fill" id="syncBarFill"></div></div>
+<div class="sync-toast" id="syncToast"></div>
 <div class="main">
   <div class="pane-left">
     <div class="mode-row">
@@ -364,9 +380,11 @@ body.podium .office-slide p{font-size:28px}
   <div class="cd-line">他にご質問はございませんでしょうか？</div>
 </div>
 <script>
-const QA = __QA_JSON__;
+const SHEET_ID = "__SHEET_ID__";
+const SHEET_GID = "__SHEET_GID__";
+let QA = __QA_JSON__;
+let CATS = __CATS_JSON__;
 const TEMPLATES = __TEMPLATES_JSON__;
-const CATS = __CATS_JSON__;
 const GENERAL = __GENERAL_JSON__;
 const GENERAL_CATS = __GENERAL_CATS_JSON__;
 const TAG_MAP = {"answered":["green","個別回答"],"template":["orange","定型文"],"declined":["red","回答留保"],"updated":["blue","★最新情報"]};
@@ -659,6 +677,151 @@ function renderRight(){
   }
   document.documentElement.style.setProperty("--answer-size", state.answerSize+"px");
 }
+// ──── Google Sheets 再同期（ブラウザから直接 CSV fetch） ────
+const A_CLASS_MAP_JS = {
+  "個別回答":                       ["IND",  "📝 個別回答"],
+  "定型文①調査中につき回答不能":   ["TPL1", "① 調査中"],
+  "定型文②事業への影響不透明":     ["TPL2", "② 事業影響"],
+  "定型文③業績への影響不透明":     ["TPL3", "③ 業績影響"],
+  "定型文④役員の責任":              ["TPL4", "④ 役員責任"],
+  "定型文⑤再発防止":                ["TPL5", "⑤ 再発防止"],
+  "定型文⑥法的な責任分担":          ["TPL6", "⑥ 法的責任"],
+  "定型文⑦プライバシー保護":        ["TPL7", "⑦ プライバシー"],
+  "社外役員回答":                   ["OUT",  "🎓 社外役員"],
+  "個別的":                          ["IND2", "個別的"],
+};
+const A_CLASS_ORDER_JS = ["IND","TPL1","TPL2","TPL3","TPL4","TPL5","TPL6","TPL7","OUT","IND2"];
+function parseCSV(text){
+  const rows = []; let cur = [""]; let i = 0, inQuote = false;
+  while(i < text.length){
+    const c = text[i];
+    if(inQuote){
+      if(c === '"'){
+        if(text[i+1] === '"'){ cur[cur.length-1] += '"'; i += 2; continue; }
+        inQuote = false; i++;
+      } else { cur[cur.length-1] += c; i++; }
+    } else {
+      if(c === '"'){ inQuote = true; i++; }
+      else if(c === ','){ cur.push(""); i++; }
+      else if(c === '\r'){ i++; }
+      else if(c === '\n'){ rows.push(cur); cur = [""]; i++; }
+      else { cur[cur.length-1] += c; i++; }
+    }
+  }
+  if(cur.length > 1 || cur[0]) rows.push(cur);
+  return rows;
+}
+function classifyTag(a){
+  if(a.indexOf("①") >= 0 || a.indexOf("調査中") >= 0 || a.indexOf("⑦") >= 0 || a.indexOf("プライバシー") >= 0) return "declined";
+  if(a.indexOf("定型文") >= 0) return "template";
+  return "answered";
+}
+function buildQAFromCSV(csvText){
+  const rows = parseCSV(csvText);
+  const buckets = {}; A_CLASS_ORDER_JS.forEach(k => buckets[k] = []);
+  const sources = {};
+  for(const row of rows){
+    if(!row || row.length < 7) continue;
+    const noStr = (row[1]||"").trim();
+    if(!/^\d+$/.test(noStr)) continue;
+    const no = parseInt(noStr, 10);
+    const aCls = (row[2]||"").trim();
+    const q = (row[3]||"").trim();
+    const a = (row[4]||"").trim();
+    const src = (row[5]||"").trim();
+    if(!q || !a) continue;
+    const lookup = A_CLASS_MAP_JS[aCls] || ["IND", "📝 個別回答"];
+    const catKey = lookup[0];
+    const catLabel = lookup[1];
+    const displayId = no >= 201 ? "F"+(no-200) : String(no);
+    buckets[catKey].push({
+      id: displayId, cat: catKey, catLabel: catLabel,
+      q: q, a: a, tag: classifyTag(aCls),
+      src: src,
+    });
+    if(src) sources[displayId] = src;
+  }
+  const qa = [];
+  for(const key of A_CLASS_ORDER_JS){
+    buckets[key].sort((x,y)=>{
+      const xF = x.id.startsWith("F"), yF = y.id.startsWith("F");
+      if(xF !== yF) return xF ? 1 : -1;
+      return parseInt(x.id.replace("F",""),10) - parseInt(y.id.replace("F",""),10);
+    });
+    qa.push(...buckets[key]);
+  }
+  const cats = A_CLASS_ORDER_JS
+    .filter(k => buckets[k].length > 0)
+    .map(k => [k, A_CLASS_MAP_JS[Object.keys(A_CLASS_MAP_JS).find(n => A_CLASS_MAP_JS[n][0]===k)][1], buckets[k].length]);
+  return { qa, cats };
+}
+function setProgress(pct){
+  const bar = document.getElementById("syncBarFill");
+  if(bar) bar.style.width = pct + "%";
+}
+function showToast(msg, isErr){
+  const t = document.getElementById("syncToast");
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.toggle("err", !!isErr);
+  t.classList.add("on");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.classList.remove("on"); }, 2400);
+}
+async function syncFromSheets(){
+  const btn = document.getElementById("syncBtn");
+  const prog = document.getElementById("syncProgress");
+  const badge = document.querySelector(".sync-badge");
+  if(!btn || btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = "🔄 同期中...";
+  if(badge){ badge.classList.add("syncing"); badge.classList.remove("err"); badge.textContent = "🔄 同期中"; }
+  prog.classList.add("on");
+  setProgress(8);
+  try{
+    const url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=" + SHEET_GID + "&_t=" + Date.now();
+    setProgress(25);
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    setProgress(55);
+    const text = await res.text();
+    setProgress(75);
+    const { qa, cats } = buildQAFromCSV(text);
+    if(!qa.length) throw new Error("データが空です");
+    QA = qa;
+    CATS = cats;
+    setProgress(90);
+    if(state.mode === "accident" && state.tab !== "ALL" && state.tab !== "TPL"){
+      if(!cats.some(c => c[0] === state.tab)) state.tab = "ALL";
+    }
+    state.checked = state.checked.filter(k => findByKey(k));
+    state.selected = -1;
+    buildTabs();
+    render();
+    setProgress(100);
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    const ss = String(now.getSeconds()).padStart(2,"0");
+    if(badge){
+      badge.classList.remove("syncing");
+      badge.textContent = "🔄 " + hh + ":" + mm + ":" + ss + " 同期済";
+    }
+    showToast("✅ 同期完了（" + qa.length + "問／" + hh + ":" + mm + "）", false);
+  } catch(err){
+    console.error(err);
+    if(badge){ badge.classList.remove("syncing"); badge.classList.add("err"); badge.textContent = "⚠ 同期失敗"; }
+    showToast("⚠ 同期失敗: " + (err.message || err), true);
+  } finally {
+    setTimeout(()=>{
+      prog.classList.remove("on");
+      setProgress(0);
+    }, 500);
+    btn.disabled = false;
+    btn.textContent = "🔄 再同期";
+  }
+}
+
 function clearAllChecks(){
   if(state.checked.length===0) return;
   state.checked = [];
@@ -887,6 +1050,8 @@ def build_inner_html(data, sources) -> tuple[str, int]:
             .replace("__CATS_JSON__",      json.dumps(cats, ensure_ascii=False))
             .replace("__GENERAL_JSON__",   json.dumps(general_items, ensure_ascii=False))
             .replace("__GENERAL_CATS_JSON__", json.dumps(general_cats, ensure_ascii=False))
+            .replace("__SHEET_ID__",       SHEET_ID)
+            .replace("__SHEET_GID__",      SHEET_GID)
             .replace("__BUILD_TIME__",     build_time)
             .replace("__TOTAL__",          str(total))
             .replace("__GEN_TOTAL__",      str(len(general_items)))
