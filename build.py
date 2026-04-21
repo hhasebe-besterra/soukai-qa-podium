@@ -622,17 +622,14 @@ function renderRight(){
               '<div class="row">'+
                 '<button id="aiGenBtn" type="button" class="gen" title="スプレッドシート＋他資料から類似質問を検索して参考回答を生成">🧠 回答生成</button>'+
                 '<button id="aiAutoBtn" type="button" class="auto" title="生成してそのまま画面に表示">⚡ 自動回答</button>'+
-                '<button id="aiApply" type="button">✅ 表示を更新</button>'+
                 '<button id="aiClear" type="button" class="secondary">クリア</button>'+
-                '<span style="font-size:11px;color:#64748b;margin-left:auto">'+ (state.aiA.length) +'文字</span>'+
+                '<span style="font-size:11px;color:#64748b;margin-left:auto" id="aiCharCount">'+ (state.aiA.length) +'文字</span>'+
               '</div>';
-      if(state.aiA){
-        html += '<div style="margin-top:20px;border-top:2px solid #e2e8f0;padding-top:20px">'+
-                '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px;background:#0891b2">AI</span>'+ escapeHtml(state.aiQ || "（質問未入力）") +'</div>'+
-                '<div class="answer-label">── 回 答 ──</div>'+
-                '<div class="answer-text">'+ escapeHtml(state.aiA) +'</div>'+
-                '</div>';
-      }
+      html += '<div id="aiPreview" style="margin-top:20px;border-top:2px solid #e2e8f0;padding-top:20px;display:'+ (state.aiA ? 'block' : 'none') +'">'+
+              '<div class="card-q"><span class="qno" style="font-size:14px;padding:2px 10px;margin-right:8px;background:#0891b2">AI</span><span id="aiPreviewQ">'+ escapeHtml(state.aiQ || "（質問未入力）") +'</span></div>'+
+              '<div class="answer-label">── 回 答 ──</div>'+
+              '<div class="answer-text" id="aiPreviewA">'+ escapeHtml(state.aiA) +'</div>'+
+              '</div>';
       html += '</div>';
       return;
     }
@@ -655,14 +652,9 @@ function renderRight(){
       if(i>=0){ state.checked.splice(i,1); render(); }
     });
   });
-  const aiApply = document.getElementById("aiApply");
-  if(aiApply){
-    aiApply.addEventListener("click",()=>{
-      state.aiQ = document.getElementById("aiQInput").value;
-      state.aiA = document.getElementById("aiAInput").value;
-      renderRight();
-    });
-    document.getElementById("aiClear").addEventListener("click",()=>{
+  const aiClear = document.getElementById("aiClear");
+  if(aiClear){
+    aiClear.addEventListener("click",()=>{
       state.aiQ=""; state.aiA="";
       if(_mic.running){ try{ _mic.rec.stop(); }catch(e){} }
       renderRight();
@@ -671,6 +663,29 @@ function renderRight(){
     if(genBtn) genBtn.addEventListener("click",()=>generateAiAnswer({auto:false}));
     const autoBtn = document.getElementById("aiAutoBtn");
     if(autoBtn) autoBtn.addEventListener("click",()=>generateAiAnswer({auto:true}));
+    // A回答のリアルタイム反映（表示を更新ボタン廃止）
+    const aInputLive = document.getElementById("aiAInput");
+    if(aInputLive){
+      aInputLive.addEventListener("input",(e)=>{
+        state.aiA = e.target.value;
+        const prev = document.getElementById("aiPreview");
+        const prevA = document.getElementById("aiPreviewA");
+        const charCt = document.getElementById("aiCharCount");
+        if(prevA) prevA.textContent = state.aiA;
+        if(prev) prev.style.display = state.aiA ? "block" : "none";
+        if(charCt) charCt.textContent = state.aiA.length + "文字";
+      });
+    }
+    // Q側も入力毎に preview Q を更新 + マイク baseline
+    const qInputLive = document.getElementById("aiQInput");
+    if(qInputLive){
+      qInputLive.addEventListener("input",(e)=>{
+        state.aiQ = e.target.value;
+        _mic.manualBase = e.target.value;
+        const prevQ = document.getElementById("aiPreviewQ");
+        if(prevQ) prevQ.textContent = state.aiQ || "（質問未入力）";
+      });
+    }
     // マイク（Web Speech API）
     const micBtn = document.getElementById("micBtn");
     if(micBtn){
@@ -686,11 +701,6 @@ function renderRight(){
         else st.textContent = _mic.running ? "● 録音中..." : "（Chrome/Edge で動作）";
       }
     }
-    // Qテキストエリアへの手入力も state に同期
-    document.getElementById("aiQInput").addEventListener("input",(e)=>{
-      _mic.manualBase = e.target.value;
-      state.aiQ = e.target.value;
-    });
   }
   document.documentElement.style.setProperty("--answer-size", state.answerSize+"px");
 }
