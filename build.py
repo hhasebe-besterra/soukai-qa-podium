@@ -258,10 +258,9 @@ header button#syncBtn:disabled{background:#475569;cursor:wait;opacity:.7}
 body.podium .closing-dock{font-size:20px;padding:22px 30px;max-width:560px;border-width:4px}
 body.podium .closing-dock .cd-line{font-size:22px;line-height:1.85}
 body.podium .closing-dock .cd-label{font-size:12px}
-.counter-chip{position:fixed;top:14px;right:14px;background:#1e293b;color:#fbbf24;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:700;z-index:120;border:2px solid #fbbf24;display:none;gap:10px;align-items:center}
+.counter-chip{position:fixed;top:60px;right:14px;background:#1e293b;color:#fbbf24;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;z-index:120;border:2px solid #fbbf24;display:none;gap:8px;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .counter-chip.on{display:flex}
-.counter-chip .clear-all{background:#dc2626;color:#fff;border:none;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
-.counter-chip .clear-all:hover{background:#b91c1c}
+body.podium .counter-chip{display:none !important}
 .mode-row{display:flex;background:#0f172a;padding:6px 6px;gap:4px;border-bottom:1px solid #334155;flex-shrink:0}
 .mode-btn{flex:1;padding:10px;background:#1e293b;color:#94a3b8;border:2px solid transparent;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .mode-btn.active{background:#dc2626;color:#fff;border-color:#fbbf24}
@@ -373,7 +372,7 @@ body.podium .office-slide p{font-size:28px}
   <span class="kbd">/</span> 検索  <span class="kbd">↑↓</span> 候補  <span class="kbd">Space/Enter</span> ✓<br>
   <span class="kbd">F</span> 演台ON/OFF  <span class="kbd">Esc</span> 閉じる
 </div>
-<div class="counter-chip" id="counterChip"><span>選択中 <span id="counterNum">0</span> / 4</span><button class="clear-all" id="clearAllBtn" title="全てのチェックを解除">✕ 全解除</button></div>
+<div class="counter-chip" id="counterChip"><span>選択中 <span id="counterNum">0</span> / 4</span></div>
 <div class="closing-dock" id="closingDock" title="ドラッグで移動">
   <div class="cd-label">📢 回答の締めくくり（読み上げ）</div>
   <div class="cd-line">以上、ご回答申し上げました。</div>
@@ -997,7 +996,6 @@ buildScope();
 buildModes();
 document.getElementById("btnOffice").addEventListener("click",()=>pushSpecial("SP:OFFICE"));
 document.getElementById("btnAiPaste").addEventListener("click",()=>pushSpecial("SP:AI"));
-document.getElementById("clearAllBtn").addEventListener("click",(ev)=>{ ev.stopPropagation(); clearAllChecks(); });
 parseInitial();
 render();
 </script>
