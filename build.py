@@ -324,27 +324,23 @@ body.podium .counter-chip{display:none !important}
 .ai-gen-status.on{display:block}
 .ai-paste-box .interim{color:#64748b;font-style:italic}
 body.podium .ai-paste-box{border-style:solid}
-.office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:30px 50px 50px;text-align:center;max-width:1200px;margin:0 auto 20px;position:relative}
-.office-slide h1{font-size:48px;color:#7c2d12;margin-bottom:24px;font-weight:900;letter-spacing:.05em;line-height:1.45}
-.office-slide h1.office-nominate{font-size:32px;line-height:1.7}
+.office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:30px 40px 44px;max-width:1200px;margin:0 auto 20px;position:relative}
+.office-slide .office-title{font-size:34px;color:#7c2d12;margin-bottom:18px;font-weight:900;letter-spacing:.04em;text-align:center}
 .office-slide .role-v,.office-slide .director-v{background:#7c2d12;color:#fef3c7;padding:4px 14px;border-radius:8px;display:inline-block;margin:0 4px;font-weight:900}
-.office-slide p{font-size:20px;color:#451a03;line-height:1.8;margin-bottom:16px;font-weight:700}
-.office-badge{display:inline-block;background:#7c2d12;color:#fef3c7;padding:5px 16px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.1em;margin-bottom:18px}
-.office-phase-row{display:flex;gap:6px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
-.office-ph-btn{background:#fef3c7;color:#7c2d12;border:2px solid #f59e0b;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.office-ph-btn:hover{background:#fde68a}
-.office-ph-btn.active{background:#7c2d12;color:#fef3c7;border-color:#451a03}
-.office-edit{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;padding:12px 16px;background:rgba(255,255,255,.5);border:2px dashed #f59e0b;border-radius:10px}
+.office-edit{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px;padding:12px 16px;background:rgba(255,255,255,.5);border:2px dashed #f59e0b;border-radius:10px}
 .office-edit label{font-size:12px;font-weight:700;color:#7c2d12;letter-spacing:.1em}
 .office-edit input{padding:6px 12px;font-size:15px;font-weight:700;border:2px solid #f59e0b;border-radius:6px;background:#fff;color:#7c2d12;font-family:inherit;outline:none;width:140px;text-align:center}
 .office-edit input:focus{border-color:#451a03}
-body.podium .office-slide{padding:50px 40px 70px}
-body.podium .office-slide h1{font-size:96px;line-height:1.4}
-body.podium .office-slide h1.office-nominate{font-size:54px;line-height:1.7}
-body.podium .office-slide p{font-size:28px}
-body.podium .office-badge{font-size:16px;padding:8px 24px;margin-bottom:28px}
-body.podium .office-phase-row{display:none}
+.office-block{margin:16px 0;padding:14px 22px;background:rgba(255,255,255,.55);border-left:6px solid #d97706;border-radius:8px}
+.office-label{font-size:15px;font-weight:700;color:#78350f;letter-spacing:.05em;margin-bottom:8px}
+.office-line{font-size:28px;font-weight:900;color:#451a03;line-height:1.7}
+body.podium .office-slide{padding:40px 60px 70px}
+body.podium .office-slide .office-title{font-size:52px;margin-bottom:30px}
 body.podium .office-edit{display:none}
+body.podium .office-block{padding:20px 36px;margin:22px 0;background:rgba(255,255,255,.65);border-left-width:10px}
+body.podium .office-label{font-size:20px;margin-bottom:12px}
+body.podium .office-line{font-size:44px;line-height:1.7}
+body.podium .office-slide .role-v,body.podium .office-slide .director-v{padding:6px 20px;font-size:42px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -654,37 +650,32 @@ function renderRight(){
     const n = idx+1;
     const showIdx = items.length > 1;
     if(it.special === "office"){
-      const ph = state.officePhase|0;
       const role = state.officeRole || "●●";
       const director = state.officeDirector || "▲▲";
-      let phaseHtml = "";
-      if(ph === 0){
-        phaseHtml = '<div class="office-badge">① 事務局打ち合わせに入る前に</div>'+
-                    '<h1>少々お待ちください</h1>';
-      } else if(ph === 1){
-        phaseHtml = '<div class="office-badge">② 回答を申し上げる前に</div>'+
-                    '<h1>お待たせいたしました。</h1>';
-      } else {
-        phaseHtml = '<div class="office-badge">③ 回答者を指名して引き継ぐ</div>'+
-                    '<div class="office-edit">'+
-                      '<label>担当分野</label><input id="officeRoleInput" type="text" placeholder="例: 財務" value="'+ escapeAttr(state.officeRole) +'">'+
-                      '<label>取締役名</label><input id="officeDirectorInput" type="text" placeholder="例: 山田" value="'+ escapeAttr(state.officeDirector) +'">'+
-                    '</div>'+
-                    '<h1 class="office-nominate">'+
-                      'ただいまのご質問は、<span class="role-v">'+ escapeHtml(role) +'</span>を担当しております<br>'+
-                      '<span class="director-v">'+ escapeHtml(director) +'</span>取締役からご説明申し上げます。<br>'+
-                      '<span class="director-v">'+ escapeHtml(director) +'</span>取締役、お願いいたします。'+
-                    '</h1>';
-      }
       html += '<div class="office-slide">'+
               '<button class="remove-card" data-k="'+keyOf(it)+'">✕ 外す</button>'+
               (showIdx ? '<span class="answer-idx">'+n+'</span>' : '')+
-              '<div class="office-phase-row">'+
-                '<button class="office-ph-btn'+(ph===0?' active':'')+'" data-ph="0">① 少々お待ちください</button>'+
-                '<button class="office-ph-btn'+(ph===1?' active':'')+'" data-ph="1">② お待たせいたしました</button>'+
-                '<button class="office-ph-btn'+(ph===2?' active':'')+'" data-ph="2">③ 回答者指名</button>'+
+              '<h1 class="office-title">🏢 事務局に相談してください。</h1>'+
+              '<div class="office-edit">'+
+                '<label>担当分野</label><input id="officeRoleInput" type="text" placeholder="例: 財務" value="'+ escapeAttr(state.officeRole) +'">'+
+                '<label>取締役名</label><input id="officeDirectorInput" type="text" placeholder="例: 山田" value="'+ escapeAttr(state.officeDirector) +'">'+
               '</div>'+
-              phaseHtml +
+              '<div class="office-block">'+
+                '<div class="office-label">（事務局打ち合わせに入る前に）</div>'+
+                '<div class="office-line">少々お待ちください</div>'+
+              '</div>'+
+              '<div class="office-block">'+
+                '<div class="office-label">（回答前に）</div>'+
+                '<div class="office-line">お待たせいたしました。</div>'+
+              '</div>'+
+              '<div class="office-block">'+
+                '<div class="office-label">（回答者指名の場合）</div>'+
+                '<div class="office-line">'+
+                  'ただいまのご質問は、<span class="role-v">'+ escapeHtml(role) +'</span>を担当しております<br>'+
+                  '<span class="director-v">'+ escapeHtml(director) +'</span>取締役からご説明申し上げます。<br>'+
+                  '<span class="director-v">'+ escapeHtml(director) +'</span>取締役、お願いいたします。'+
+                '</div>'+
+              '</div>'+
               '</div>';
       return;
     }
@@ -736,8 +727,10 @@ function renderRight(){
     const it = hoveredItem;
     if(it.special === "office"){
       html += '<div class="office-slide preview">'+
-              '<h1>🏢 事務局に相談します</h1>'+
-              '<p>誠に恐れ入りますが、この件につきましては、<br>事務局とも相談の上、改めてご回答申し上げます。</p>'+
+              '<h1 class="office-title">🏢 事務局に相談してください。</h1>'+
+              '<div class="office-block"><div class="office-label">（事務局打ち合わせに入る前に）</div><div class="office-line">少々お待ちください</div></div>'+
+              '<div class="office-block"><div class="office-label">（回答前に）</div><div class="office-line">お待たせいたしました。</div></div>'+
+              '<div class="office-block"><div class="office-label">（回答者指名の場合）</div><div class="office-line">ただいまのご質問は、●●を担当しております<br>▲▲取締役からご説明申し上げます。▲▲取締役、お願いいたします。</div></div>'+
               '</div>';
     } else if(it.special === "ai"){
       // AI枠はプレビュー対象外
