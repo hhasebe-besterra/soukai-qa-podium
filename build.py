@@ -285,9 +285,18 @@ body.podium .counter-chip{display:none !important}
 .ai-paste-box .mic-status{font-size:11px;color:#64748b;margin-left:auto}
 .ai-paste-box .mic-btn.rec .mic-dot{background:#fff}
 @keyframes recpulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.8)}50%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
-.ai-paste-box .row{display:flex;gap:8px;margin-top:12px;align-items:center}
+.ai-paste-box .row{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
 .ai-paste-box .row button{background:#0891b2;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .ai-paste-box .row button.secondary{background:#475569}
+.ai-paste-box .row button.gen{background:#7c3aed}
+.ai-paste-box .row button.gen:hover{background:#6d28d9}
+.ai-paste-box .row button.auto{background:#dc2626}
+.ai-paste-box .row button.auto:hover{background:#b91c1c}
+.ai-paste-box .row button:disabled{opacity:.6;cursor:wait}
+.ai-paste-box textarea.invalid{border-color:#dc2626!important;box-shadow:0 0 0 4px rgba(220,38,38,.15);animation:qshake .35s}
+@keyframes qshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ai-gen-status{font-size:12px;color:#7c3aed;font-weight:700;margin-top:8px;display:none}
+.ai-gen-status.on{display:block}
 .ai-paste-box .interim{color:#64748b;font-style:italic}
 body.podium .ai-paste-box{border-style:solid}
 .office-slide{background:linear-gradient(135deg,#fef3c7,#fde68a);border:4px solid #f59e0b;border-radius:14px;padding:60px 50px;text-align:center;max-width:1200px;margin:0 auto 20px}
@@ -604,12 +613,14 @@ function renderRight(){
                 '<button id="micBtn" class="mic-btn" type="button"><span class="mic-dot"></span><span id="micLabel">録音開始</span></button>'+
                 '<span class="mic-status" id="micStatus"></span>'+
               '</div>'+
-              '<textarea id="aiQInput" class="ai-q" placeholder="マイクボタンで録音すると、リアルタイムで文字起こしされます。手入力も可。">'+ escapeHtml(state.aiQ) +'</textarea>'+
-              '<label>🤖 AI回答（Claude 等で作成した回答をペースト）</label>'+
-              '<textarea id="aiAInput" placeholder="ここに回答をペーストしてください。そのまま表示されます。">'+ escapeHtml(state.aiA) +'</textarea>'+
+              '<textarea id="aiQInput" class="ai-q" placeholder="質問をいれてください、または音声入力してください。">'+ escapeHtml(state.aiQ) +'</textarea>'+
+              '<label>🤖 AI回答（参考データから自動生成 / Claude等の結果をペーストも可）</label>'+
+              '<textarea id="aiAInput" placeholder="🧠「回答生成」で参考回答を自動作成、⚡「自動回答」で即表示。ペーストも可。">'+ escapeHtml(state.aiA) +'</textarea>'+
               '<div class="row">'+
-                '<button id="aiApply">✅ 表示を更新</button>'+
-                '<button id="aiClear" class="secondary">クリア</button>'+
+                '<button id="aiGenBtn" type="button" class="gen" title="スプレッドシート＋他資料から類似質問を検索して参考回答を生成">🧠 回答生成</button>'+
+                '<button id="aiAutoBtn" type="button" class="auto" title="生成してそのまま画面に表示">⚡ 自動回答</button>'+
+                '<button id="aiApply" type="button">✅ 表示を更新</button>'+
+                '<button id="aiClear" type="button" class="secondary">クリア</button>'+
                 '<span style="font-size:11px;color:#64748b;margin-left:auto">'+ (state.aiA.length) +'文字</span>'+
               '</div>';
       if(state.aiA){
@@ -653,6 +664,10 @@ function renderRight(){
       if(_mic.running){ try{ _mic.rec.stop(); }catch(e){} }
       renderRight();
     });
+    const genBtn = document.getElementById("aiGenBtn");
+    if(genBtn) genBtn.addEventListener("click",()=>generateAiAnswer({auto:false}));
+    const autoBtn = document.getElementById("aiAutoBtn");
+    if(autoBtn) autoBtn.addEventListener("click",()=>generateAiAnswer({auto:true}));
     // マイク（Web Speech API）
     const micBtn = document.getElementById("micBtn");
     if(micBtn){
@@ -825,6 +840,110 @@ function clearAllChecks(){
   if(state.checked.length===0) return;
   state.checked = [];
   render();
+}
+
+// ──── AI回答生成（ローカル類似検索） ────
+const STOPWORDS = new Set(["の","は","が","を","に","へ","で","と","や","も","から","まで","より","こと","もの","です","ます","ある","する","いる","なる","れる","られる","について","という","ため","この","その","あの","どの","どう","とき","これ","それ","あれ"]);
+function tokenize(s){
+  s = (s||"").toLowerCase();
+  const out = new Set();
+  s.split(/[\s、。,.!?？！・「」『』（）()【】\/\\\-_～~＝=＋+＊*#＃@＠$＄%％^＾&＆\|｜:;：；]+/)
+    .filter(x => x.length > 0)
+    .forEach(t => { if(t.length >= 2 && !STOPWORDS.has(t)) out.add(t); });
+  // CJK bigram
+  const clean = s.replace(/\s+/g, "");
+  for(let i = 0; i < clean.length - 1; i++){
+    const bg = clean.substring(i, i+2);
+    if(/^[぀-ゟ゠-ヿ一-鿿]{2}$/.test(bg) && !STOPWORDS.has(bg)){
+      out.add(bg);
+    }
+  }
+  return out;
+}
+function scoreItem(qTokens, item){
+  const qt2 = tokenize(item.q);
+  const at2 = tokenize(item.a);
+  let s = 0;
+  qTokens.forEach(t => {
+    if(qt2.has(t)) s += t.length * 2.0;
+    if(at2.has(t)) s += t.length * 0.6;
+  });
+  return s;
+}
+function findSimilar(question, topN){
+  const qt = tokenize(question);
+  if(qt.size === 0) return [];
+  const pool = QA.concat(
+    TEMPLATES.map(t => ({id:t.id, cat:"TPL", catLabel:"定型文", q:t.title, a:t.a, tag:"template", src:"2026-04-20版 定型文"})),
+    GENERAL
+  );
+  const scored = [];
+  for(const it of pool){
+    const s = scoreItem(qt, it);
+    if(s > 0) scored.push({ it, s });
+  }
+  scored.sort((a, b) => b.s - a.s);
+  return scored.slice(0, topN || 3);
+}
+function composeAnswer(question, hits){
+  if(hits.length === 0){
+    return "【参考回答が見つかりませんでした】\n\n該当するデータがスプレッドシート・想定問答集に見つかりません。\n事務局と相談のうえ、改めてご回答申し上げます。";
+  }
+  const lines = [];
+  lines.push("【参考回答（類似質問 " + hits.length + "件から自動構成）】");
+  lines.push("");
+  const top = hits[0].it;
+  const topPrefix = top.cat === "TPL" ? "定型文 " + top.id : (top.mode === "general" ? "一般Q" + top.id : "Q" + top.id);
+  lines.push("■ 主回答（参考：" + topPrefix + " " + top.q + "）");
+  lines.push(top.a);
+  if(hits.length > 1){
+    lines.push("");
+    lines.push("── 関連する他の質問と回答のポイント ──");
+    hits.slice(1).forEach(h => {
+      const it = h.it;
+      const prefix = it.cat === "TPL" ? "定" + it.id : (it.mode === "general" ? "一般Q" + it.id : "Q" + it.id);
+      const excerpt = (it.a || "").replace(/\s+/g, " ").substring(0, 120);
+      lines.push("・【" + prefix + "】" + it.q);
+      lines.push("  → " + excerpt + (it.a.length > 120 ? "…" : ""));
+    });
+  }
+  lines.push("");
+  lines.push("―以上、ご回答申し上げました。");
+  return lines.join("\n");
+}
+function generateAiAnswer(opts){
+  const autoDisplay = !!(opts && opts.auto);
+  const qEl = document.getElementById("aiQInput");
+  const aEl = document.getElementById("aiAInput");
+  if(!qEl || !aEl) return;
+  const q = (qEl.value || "").trim();
+  if(!q){
+    qEl.value = "";
+    qEl.placeholder = "質問をいれてください、または音声入力してください。";
+    qEl.classList.remove("invalid");
+    void qEl.offsetWidth;
+    qEl.classList.add("invalid");
+    qEl.focus();
+    setTimeout(()=>{ qEl.classList.remove("invalid"); }, 1800);
+    return;
+  }
+  const btnGen = document.getElementById("aiGenBtn");
+  const btnAuto = document.getElementById("aiAutoBtn");
+  if(btnGen) btnGen.disabled = true;
+  if(btnAuto) btnAuto.disabled = true;
+  aEl.value = "🧠 参考データを検索中...";
+  setTimeout(()=>{
+    const hits = findSimilar(q, 3);
+    const answer = composeAnswer(q, hits);
+    aEl.value = answer;
+    state.aiQ = q;
+    state.aiA = answer;
+    if(btnGen) btnGen.disabled = false;
+    if(btnAuto) btnAuto.disabled = false;
+    if(autoDisplay){
+      renderRight();
+    }
+  }, 150);
 }
 const _mic = { rec:null, running:false, finalText:"", manualBase:"" };
 function toggleMic(){
