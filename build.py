@@ -146,13 +146,19 @@ header button.primary:hover{background:#b91c1c}
 .main{display:flex;flex:1;min-height:0}
 .pane-left{width:420px;background:#1e293b;border-right:2px solid #334155;display:flex;flex-direction:column;min-height:0}
 .search-area{padding:12px 14px;background:#0f172a;border-bottom:1px solid #334155}
-.search-row{display:flex;gap:6px;margin-bottom:8px}
-.search-row input{flex:1;padding:10px 14px;border:2px solid #334155;background:#1e293b;color:#e2e8f0;border-radius:6px;font-size:14px;font-family:inherit;outline:none}
+.search-row{display:flex;gap:6px;margin-bottom:0;position:relative}
+.search-row input{flex:1;padding:10px 110px 10px 14px;border:2px solid #334155;background:#1e293b;color:#e2e8f0;border-radius:6px;font-size:14px;font-family:inherit;outline:none}
 .search-row input:focus{border-color:#60a5fa}
-#jumpInput{width:68px;text-align:center;font-weight:700}
-.scope-row{display:flex;gap:6px;flex-wrap:wrap}
-.scope-btn{padding:5px 10px;background:#334155;color:#cbd5e1;border:none;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
-.scope-btn.active{background:#3b82f6;color:#fff}
+#jumpInput{width:68px;text-align:center;font-weight:700;padding:10px 14px}
+.scope-pill{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#3b82f6;color:#fff;border:none;padding:5px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;user-select:none}
+.scope-pill:hover{background:#2563eb}
+.scope-pill .scope-caret{font-size:8px;opacity:.8}
+.scope-popup{position:absolute;right:0;top:calc(100% + 4px);background:#0f172a;border:1px solid #3b82f6;border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.6);z-index:100;display:none;min-width:160px;overflow:hidden}
+.scope-popup.on{display:block}
+.scope-opt{padding:10px 14px;color:#e2e8f0;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.scope-opt:hover{background:#1e3a8a}
+.scope-opt.selected{background:#3b82f6;color:#fff}
+.scope-opt .scope-check{color:#fbbf24}
 .cat-dropdown{position:relative;padding:8px 12px;background:#1e293b;border-bottom:2px solid #334155;flex-shrink:0}
 .cat-select-btn{width:100%;padding:11px 16px;background:#0f172a;color:#fff;border:2px solid #3b82f6;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;transition:background .12s,border-color .12s}
 .cat-select-btn:hover{background:#1e3a8a;border-color:#60a5fa}
@@ -375,11 +381,14 @@ body.podium .office-slide .role-v,body.podium .office-slide .director-v{padding:
     <div class="search-area">
       <div class="search-row">
         <input type="text" id="searchInput" placeholder="🔍 キーワード検索" autocomplete="off">
-      </div>
-      <div class="scope-row">
-        <button class="scope-btn active" data-scope="both">質問＋回答</button>
-        <button class="scope-btn" data-scope="q">質問のみ</button>
-        <button class="scope-btn" data-scope="a">回答のみ</button>
+        <button class="scope-pill" id="scopePill" type="button" title="検索対象を切替">
+          <span id="scopePillLabel">Q+A</span><span class="scope-caret">▼</span>
+        </button>
+        <div class="scope-popup" id="scopePopup">
+          <div class="scope-opt selected" data-scope="both"><span>質問＋回答</span><span class="scope-check">✓</span></div>
+          <div class="scope-opt" data-scope="q"><span>質問のみ</span><span class="scope-check" style="visibility:hidden">✓</span></div>
+          <div class="scope-opt" data-scope="a"><span>回答のみ</span><span class="scope-check" style="visibility:hidden">✓</span></div>
+        </div>
       </div>
     </div>
     <div class="cat-dropdown" id="catDropdown">
@@ -551,13 +560,39 @@ function buildModes(){
   });
 }
 function buildScope(){
-  document.querySelectorAll(".scope-btn").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      state.scope = btn.dataset.scope;
-      document.querySelectorAll(".scope-btn").forEach(b=>b.classList.toggle("active", b===btn));
+  const pill = document.getElementById("scopePill");
+  const popup = document.getElementById("scopePopup");
+  const label = document.getElementById("scopePillLabel");
+  const SCOPE_LABEL = { both:"Q+A", q:"Q のみ", a:"A のみ" };
+  function closePopup(){ popup.classList.remove("on"); }
+  function refreshPopup(){
+    popup.querySelectorAll(".scope-opt").forEach(opt=>{
+      const on = opt.dataset.scope === state.scope;
+      opt.classList.toggle("selected", on);
+      const chk = opt.querySelector(".scope-check");
+      if(chk) chk.style.visibility = on ? "visible" : "hidden";
+    });
+    label.textContent = SCOPE_LABEL[state.scope] || "Q+A";
+  }
+  pill.addEventListener("click",(ev)=>{
+    ev.stopPropagation();
+    popup.classList.toggle("on");
+  });
+  popup.querySelectorAll(".scope-opt").forEach(opt=>{
+    opt.addEventListener("click",(ev)=>{
+      ev.stopPropagation();
+      state.scope = opt.dataset.scope;
+      refreshPopup();
+      closePopup();
       render();
     });
   });
+  document.addEventListener("click",(ev)=>{
+    if(!popup.classList.contains("on")) return;
+    if(ev.target.closest("#scopePopup") || ev.target.closest("#scopePill")) return;
+    closePopup();
+  });
+  refreshPopup();
 }
 function matches(item){
   const q = state.query.trim().toLowerCase();
